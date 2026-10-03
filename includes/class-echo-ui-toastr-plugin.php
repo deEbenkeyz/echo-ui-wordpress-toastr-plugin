@@ -121,9 +121,9 @@ class Echo_UI_Toastr_Plugin {
 
 		wp_register_style(
 			self::STYLE_FONT,
-			'https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap',
+			ECHO_UI_TOASTS_URL . 'assets/vendor/figtree/figtree.css',
 			array(),
-			null // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+			ECHO_UI_TOASTS_VERSION
 		);
 
 		wp_register_style(

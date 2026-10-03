@@ -88,9 +88,28 @@ add_filter( 'echo_ui_toastr_config', function ( $config ) {
 } );
 ```
 
+## WooCommerce
+
+When WooCommerce is active, cart, checkout, and account notices are shown as toasts instead of inline banners. The first link in a notice (for example **View cart**) becomes a button on the toast. Turn this off under **Where toasts show**, or per request:
+
+```php
+add_filter( 'echo_ui_toasts_woocommerce_notices', '__return_false' );
+```
+
+Toasts queued from PHP can carry the same kind of link:
+
+```php
+echo_ui_toast( 'success', 'Order placed', array(
+	'action'  => array( 'label' => 'View order', 'url' => $order_url ),
+	'context' => 'frontend',
+) );
+```
+
 ## Bundled library
 
 This plugin vendors Echo UI `0.1.0` browser assets:
 
 - `assets/vendor/echo-ui/echo.umd.js`
 - `assets/vendor/echo-ui/style.css`
+
+The settings page font, Figtree (SIL Open Font License 1.1), is bundled in `assets/vendor/figtree/`.

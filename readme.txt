@@ -4,7 +4,7 @@ Tags: toast, notifications, toastr, alerts
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 0.1.4
+Stable tag: 0.1.5
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -52,3 +52,6 @@ Added a dark, light, and auto theme switcher for the settings page. Dark is the 
 
 = 0.1.4 =
 Redesigned the settings page as the Notification Center: live toast preview, position picker, per-type durations with readable hints, sound test, history type chips, copyable developer snippet, and a save bar that tracks unsaved changes. Select2 is no longer loaded.
+
+= 0.1.5 =
+WooCommerce notices now reliably become toasts (collected before WooCommerce prints them), with links such as "View cart" kept as a toast button. Toggle it under Where toasts show. The settings page font is now bundled instead of loaded from Google Fonts.
