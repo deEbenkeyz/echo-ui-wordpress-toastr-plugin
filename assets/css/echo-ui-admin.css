@@ -1,0 +1,906 @@
+/*
+ * Echo UI Notification Center (settings page).
+ * Everything is scoped to .echo-ui-nc and nc-* classes so WP core and other plugins
+ * (.card, .wrap, .toast, .btn ...) cannot collide with it.
+ */
+
+.echo-ui-nc,
+body.echo-ui-settings-screen {
+	--nc-bg: #eef2f3;
+	--nc-panel: #fff;
+	--nc-ink: #12212b;
+	--nc-mute: #5d6f7a;
+	--nc-line: #dde5e8;
+	--nc-brand: #0b6b7c;
+	--nc-brand-ink: #fff;
+	--nc-soft: #e4f1f3;
+	--nc-stage: #dfe7ea;
+	--nc-track: #aebbc2;
+	--nc-success: #188a5b;
+	--nc-error: #c9372c;
+	--nc-warning: #b7791f;
+	--nc-info: #2b6fd6;
+	--nc-loading: #6b5bd6;
+}
+
+.echo-ui-theme-dark .echo-ui-nc,
+body.echo-ui-theme-dark {
+	--nc-bg: #0f171c;
+	--nc-panel: #17222a;
+	--nc-ink: #e8f0f3;
+	--nc-mute: #93a6b0;
+	--nc-line: #2a3944;
+	--nc-brand: #3fb4c8;
+	--nc-brand-ink: #06232a;
+	--nc-soft: #17333a;
+	--nc-stage: #1d2a32;
+	--nc-track: #3a4b56;
+	--nc-success: #3cc08a;
+	--nc-error: #ef6a5e;
+	--nc-warning: #e2a846;
+	--nc-info: #6ea2f5;
+	--nc-loading: #9a8cf2;
+}
+
+@media (prefers-color-scheme: dark) {
+	.echo-ui-theme-auto .echo-ui-nc,
+	body.echo-ui-theme-auto {
+		--nc-bg: #0f171c;
+		--nc-panel: #17222a;
+		--nc-ink: #e8f0f3;
+		--nc-mute: #93a6b0;
+		--nc-line: #2a3944;
+		--nc-brand: #3fb4c8;
+		--nc-brand-ink: #06232a;
+		--nc-soft: #17333a;
+		--nc-stage: #1d2a32;
+		--nc-track: #3a4b56;
+		--nc-success: #3cc08a;
+		--nc-error: #ef6a5e;
+		--nc-warning: #e2a846;
+		--nc-info: #6ea2f5;
+		--nc-loading: #9a8cf2;
+	}
+}
+
+body.echo-ui-settings-screen,
+body.echo-ui-settings-screen #wpwrap {
+	background: var(--nc-bg);
+}
+
+body.echo-ui-settings-screen #wpfooter {
+	display: none;
+}
+
+.echo-ui-nc {
+	max-width: 1180px;
+	margin: 0 auto;
+	padding: 24px 20px 110px 0;
+	color: var(--nc-ink);
+	font: 14px/1.5 Figtree, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.echo-ui-nc *,
+.echo-ui-nc *::before,
+.echo-ui-nc *::after {
+	box-sizing: border-box;
+}
+
+.echo-ui-nc .wp-header-end {
+	margin: 0 0 4px;
+	border: 0;
+}
+
+/* Admin notices from other plugins keep their own look but sit inside the column. */
+.echo-ui-nc > form > .notice,
+.echo-ui-nc .notice {
+	margin: 0 0 16px;
+}
+
+/* Header */
+.echo-ui-nc .nc-top {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	align-items: flex-end;
+	justify-content: space-between;
+	margin-bottom: 20px;
+}
+
+.echo-ui-nc h1 {
+	margin: 0 0 4px;
+	padding: 0;
+	font-size: 26px;
+	font-weight: 700;
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+	color: var(--nc-ink);
+}
+
+.echo-ui-nc .nc-sub {
+	max-width: 52ch;
+	margin: 0;
+	font-size: 14px;
+	color: var(--nc-mute);
+}
+
+.echo-ui-nc .nc-brand {
+	margin-bottom: 6px;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--nc-brand);
+}
+
+.echo-ui-nc .nc-side {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	align-items: flex-end;
+}
+
+.echo-ui-nc .nc-sum {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.echo-ui-nc .nc-pill {
+	padding: 3px 11px;
+	font-size: 12.5px;
+	color: var(--nc-mute);
+	background: var(--nc-panel);
+	border: 1px solid var(--nc-line);
+	border-radius: 99px;
+}
+
+.echo-ui-nc .nc-pill b {
+	font-weight: 600;
+	color: var(--nc-ink);
+}
+
+/* Theme switch */
+.echo-ui-nc .nc-seg {
+	display: inline-flex;
+	padding: 2px;
+	background: var(--nc-panel);
+	border: 1px solid var(--nc-line);
+	border-radius: 99px;
+}
+
+.echo-ui-nc .nc-seg label {
+	position: relative;
+	cursor: pointer;
+}
+
+.echo-ui-nc .nc-seg input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: 0;
+	opacity: 0;
+}
+
+.echo-ui-nc .nc-seg span {
+	display: block;
+	padding: 2px 11px;
+	font-size: 12.5px;
+	font-weight: 600;
+	color: var(--nc-mute);
+	border-radius: 99px;
+}
+
+.echo-ui-nc .nc-seg input:checked + span {
+	color: var(--nc-brand-ink);
+	background: var(--nc-brand);
+}
+
+.echo-ui-nc .nc-seg input:focus-visible + span {
+	outline: 2px solid var(--nc-brand);
+	outline-offset: 1px;
+}
+
+/* Layout */
+.echo-ui-nc .nc-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 400px;
+	gap: 20px;
+	align-items: start;
+}
+
+.echo-ui-nc .nc-card {
+	min-width: 0;
+	max-width: none;
+	margin: 0 0 16px;
+	padding: 20px 22px;
+	background: var(--nc-panel);
+	border: 1px solid var(--nc-line);
+	border-radius: 12px;
+	box-shadow: none;
+}
+
+.echo-ui-nc .nc-card h2 {
+	margin: 0 0 2px;
+	padding: 0;
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--nc-ink);
+}
+
+.echo-ui-nc .nc-card .nc-d {
+	margin: 0 0 16px;
+	font-size: 13px;
+	color: var(--nc-mute);
+}
+
+.echo-ui-nc .nc-row {
+	display: flex;
+	gap: 16px;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 0;
+	border-top: 1px solid var(--nc-line);
+}
+
+.echo-ui-nc .nc-row:first-of-type {
+	border-top: 0;
+}
+
+.echo-ui-nc .nc-t {
+	font-weight: 600;
+}
+
+.echo-ui-nc .nc-s {
+	font-size: 12.5px;
+	color: var(--nc-mute);
+}
+
+/* Switch */
+.echo-ui-nc .nc-sw {
+	position: relative;
+	flex: none;
+	width: 42px;
+	height: 24px;
+}
+
+.echo-ui-nc .nc-sw input {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	opacity: 0;
+	cursor: pointer;
+}
+
+.echo-ui-nc .nc-sw span {
+	position: absolute;
+	inset: 0;
+	background: var(--nc-track);
+	border-radius: 99px;
+	transition: background 0.15s;
+}
+
+.echo-ui-nc .nc-sw span::after {
+	content: "";
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 18px;
+	height: 18px;
+	background: #fff;
+	border-radius: 50%;
+	transition: transform 0.15s;
+}
+
+.echo-ui-nc .nc-sw input:checked + span {
+	background: var(--nc-success);
+}
+
+.echo-ui-nc .nc-sw input:checked + span::after {
+	transform: translateX(18px);
+}
+
+.echo-ui-nc .nc-sw input:focus-visible + span {
+	outline: 2px solid var(--nc-brand);
+	outline-offset: 2px;
+}
+
+/* Fields */
+.echo-ui-nc .nc-lab {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: 600;
+}
+
+.echo-ui-nc select,
+.echo-ui-nc input[type="number"] {
+	width: 100%;
+	max-width: none;
+	min-height: 0;
+	height: auto;
+	padding: 8px 10px;
+	font: inherit;
+	line-height: 1.5;
+	color: var(--nc-ink);
+	background-color: var(--nc-panel);
+	border: 1px solid var(--nc-line);
+	border-radius: 8px;
+	box-shadow: none;
+}
+
+.echo-ui-nc select {
+	padding-right: 30px;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%237f909a' stroke-width='1.6' d='M2.5 4.5 6 8l3.5-3.5'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+	background-size: 12px 12px;
+	-webkit-appearance: none;
+	appearance: none;
+}
+
+.echo-ui-nc select:focus,
+.echo-ui-nc input:focus-visible,
+.echo-ui-nc button:focus-visible {
+	color: var(--nc-ink);
+	border-color: var(--nc-line);
+	box-shadow: none;
+	outline: 2px solid var(--nc-brand);
+	outline-offset: 1px;
+}
+
+.echo-ui-nc .nc-two {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px;
+}
+
+/* Position picker */
+.echo-ui-nc .nc-pos {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 6px;
+	max-width: 300px;
+}
+
+.echo-ui-nc .nc-pos button {
+	position: relative;
+	aspect-ratio: 16 / 10;
+	padding: 0;
+	color: var(--nc-ink);
+	background: var(--nc-bg);
+	border: 1px solid var(--nc-line);
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.echo-ui-nc .nc-pos button::after {
+	content: "";
+	position: absolute;
+	width: 30%;
+	height: 18%;
+	background: var(--nc-mute);
+	border-radius: 3px;
+	opacity: 0.5;
+}
+
+.echo-ui-nc .nc-pos button[data-p^="top"]::after {
+	top: 14%;
+}
+
+.echo-ui-nc .nc-pos button[data-p^="bottom"]::after {
+	bottom: 14%;
+}
+
+.echo-ui-nc .nc-pos button[data-p$="left"]::after {
+	left: 10%;
+}
+
+.echo-ui-nc .nc-pos button[data-p$="right"]::after {
+	right: 10%;
+}
+
+.echo-ui-nc .nc-pos button[data-p$="center"]::after {
+	left: 35%;
+}
+
+.echo-ui-nc .nc-pos button[aria-pressed="true"] {
+	background: var(--nc-soft);
+	border-color: var(--nc-brand);
+}
+
+.echo-ui-nc .nc-pos button[aria-pressed="true"]::after {
+	background: var(--nc-brand);
+	opacity: 1;
+}
+
+/* Stepper */
+.echo-ui-nc .nc-stepper {
+	display: flex;
+	align-items: center;
+	width: max-content;
+	overflow: hidden;
+	border: 1px solid var(--nc-line);
+	border-radius: 8px;
+}
+
+.echo-ui-nc .nc-stepper button {
+	width: 34px;
+	height: 36px;
+	padding: 0;
+	font-size: 17px;
+	color: var(--nc-ink);
+	background: var(--nc-bg);
+	border: 0;
+	cursor: pointer;
+}
+
+.echo-ui-nc .nc-stepper input[type="number"] {
+	width: 56px;
+	padding: 8px 0;
+	text-align: center;
+	border: 0;
+	border-radius: 0;
+	-moz-appearance: textfield;
+}
+
+.echo-ui-nc .nc-stepper input::-webkit-inner-spin-button,
+.echo-ui-nc .nc-stepper input::-webkit-outer-spin-button {
+	display: none;
+}
+
+/* Durations */
+.echo-ui-nc .nc-dur {
+	display: grid;
+	grid-template-columns: 110px 1fr auto;
+	gap: 12px;
+	align-items: center;
+	padding: 9px 0;
+	border-top: 1px solid var(--nc-line);
+}
+
+.echo-ui-nc .nc-dur:first-of-type {
+	border-top: 0;
+}
+
+.echo-ui-nc .nc-dot {
+	display: inline-block;
+	width: 9px;
+	height: 9px;
+	margin-right: 8px;
+	background: var(--c);
+	border-radius: 50%;
+}
+
+.echo-ui-nc .nc-msbox {
+	position: relative;
+	max-width: 190px;
+}
+
+.echo-ui-nc .nc-msbox input[type="number"] {
+	padding-right: 36px;
+}
+
+.echo-ui-nc .nc-msbox em {
+	position: absolute;
+	top: 50%;
+	right: 11px;
+	font-size: 12px;
+	font-style: normal;
+	color: var(--nc-mute);
+	transform: translateY(-50%);
+}
+
+.echo-ui-nc .nc-hint {
+	font-size: 12.5px;
+	color: var(--nc-mute);
+}
+
+.echo-ui-nc .nc-hint.on {
+	font-weight: 600;
+	color: var(--nc-brand);
+}
+
+/* Buttons */
+.echo-ui-nc .nc-btn {
+	min-height: 0;
+	padding: 7px 12px;
+	font: inherit;
+	font-weight: 600;
+	line-height: 1.5;
+	color: var(--nc-ink);
+	background: var(--nc-panel);
+	border: 1px solid var(--nc-line);
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.echo-ui-nc .nc-btn:hover {
+	background: var(--nc-bg);
+}
+
+.echo-ui-nc .nc-btn.nc-pri {
+	padding: 9px 18px;
+	color: var(--nc-brand-ink);
+	background: var(--nc-brand);
+	border-color: var(--nc-brand);
+}
+
+.echo-ui-nc .nc-btn.nc-pri:hover {
+	filter: brightness(1.08);
+}
+
+.echo-ui-nc .nc-btn.nc-pri:disabled {
+	opacity: 0.45;
+	cursor: default;
+	filter: none;
+}
+
+.echo-ui-nc input[type="range"] {
+	width: 100%;
+	accent-color: var(--nc-brand);
+}
+
+/* Chips */
+.echo-ui-nc .nc-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.echo-ui-nc .nc-chip {
+	display: inline-flex;
+	gap: 7px;
+	align-items: center;
+	padding: 5px 13px 5px 10px;
+	font: inherit;
+	font-weight: 500;
+	color: var(--nc-mute);
+	background: var(--nc-panel);
+	border: 1px solid var(--nc-line);
+	border-radius: 99px;
+	cursor: pointer;
+}
+
+.echo-ui-nc .nc-chip i {
+	width: 9px;
+	height: 9px;
+	background: var(--c);
+	border-radius: 50%;
+	opacity: 0.45;
+}
+
+.echo-ui-nc .nc-chip[aria-pressed="true"] {
+	color: var(--nc-ink);
+	background: color-mix(in srgb, var(--c) 12%, var(--nc-panel));
+	border-color: var(--c);
+}
+
+.echo-ui-nc .nc-chip[aria-pressed="true"] i {
+	opacity: 1;
+}
+
+.echo-ui-nc .off {
+	opacity: 0.45;
+	pointer-events: none;
+}
+
+/* Live preview stage */
+.echo-ui-nc .nc-stagecol {
+	position: sticky;
+	top: 52px;
+}
+
+.echo-ui-nc .nc-stagehead {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 10px;
+}
+
+.echo-ui-nc .nc-stagehead b {
+	font-size: 15px;
+}
+
+.echo-ui-nc .nc-frame {
+	overflow: hidden;
+	background: var(--nc-stage);
+	border: 1px solid var(--nc-line);
+	border-radius: 12px;
+}
+
+.echo-ui-nc .nc-bar {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+	height: 30px;
+	padding: 0 12px;
+	background: var(--nc-panel);
+	border-bottom: 1px solid var(--nc-line);
+}
+
+.echo-ui-nc .nc-bar i {
+	width: 8px;
+	height: 8px;
+	background: var(--nc-line);
+	border-radius: 50%;
+}
+
+.echo-ui-nc .nc-vp {
+	position: relative;
+	height: 340px;
+	padding: 14px;
+	overflow: hidden;
+}
+
+.echo-ui-nc .nc-skel {
+	height: 10px;
+	margin-bottom: 10px;
+	background: color-mix(in srgb, var(--nc-mute) 22%, transparent);
+	border-radius: 5px;
+}
+
+.echo-ui-nc .nc-tc {
+	position: absolute;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: min(290px, calc(100% - 28px));
+}
+
+.echo-ui-nc .nc-tc.top-left {
+	top: 14px;
+	left: 14px;
+}
+
+.echo-ui-nc .nc-tc.top-center {
+	top: 14px;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.echo-ui-nc .nc-tc.top-right {
+	top: 14px;
+	right: 14px;
+}
+
+.echo-ui-nc .nc-tc.bottom-left {
+	bottom: 14px;
+	left: 14px;
+	flex-direction: column-reverse;
+}
+
+.echo-ui-nc .nc-tc.bottom-center {
+	bottom: 14px;
+	left: 50%;
+	flex-direction: column-reverse;
+	transform: translateX(-50%);
+}
+
+.echo-ui-nc .nc-tc.bottom-right {
+	right: 14px;
+	bottom: 14px;
+	flex-direction: column-reverse;
+}
+
+.echo-ui-nc .nc-toast {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+	padding: 10px 10px 10px 12px;
+	background: var(--nc-panel);
+	border: 1px solid var(--nc-line);
+	border-left: 4px solid var(--c);
+	border-radius: 10px;
+	box-shadow: 0 6px 20px rgba(10, 30, 40, 0.14);
+}
+
+.echo-ui-nc .nc-toast .nc-ic {
+	display: grid;
+	flex: none;
+	place-items: center;
+	width: 22px;
+	height: 22px;
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--c);
+	background: color-mix(in srgb, var(--c) 16%, transparent);
+	border-radius: 50%;
+}
+
+.echo-ui-nc .nc-toast .nc-tt {
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.echo-ui-nc .nc-toast .nc-tb {
+	font-size: 12px;
+	color: var(--nc-mute);
+}
+
+.echo-ui-nc .nc-toast .nc-x {
+	margin-left: auto;
+	padding: 0;
+	font-size: 16px;
+	line-height: 1;
+	color: var(--nc-mute);
+	background: none;
+	border: 0;
+	cursor: pointer;
+}
+
+.echo-ui-nc .nc-toast.nc-spin .nc-ic {
+	animation: nc-sp 1s linear infinite;
+}
+
+@keyframes nc-sp {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Mirrors Echo UI's own enter/exit transforms. */
+@keyframes nc-in-slide {
+	from {
+		opacity: 0;
+		transform: translateX(var(--sx, 24px));
+	}
+}
+
+@keyframes nc-in-fade {
+	from {
+		opacity: 0;
+	}
+}
+
+@keyframes nc-in-pop {
+	from {
+		opacity: 0;
+		transform: translateY(8px) scale(0.92);
+	}
+}
+
+@keyframes nc-in-drop {
+	from {
+		opacity: 0;
+		transform: translateY(-28px) scale(0.98);
+	}
+}
+
+@keyframes nc-out-slide {
+	to {
+		opacity: 0;
+		transform: translateX(var(--sx, 24px));
+	}
+}
+
+@keyframes nc-out-fade {
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes nc-out-pop {
+	to {
+		opacity: 0;
+		transform: scale(0.86);
+	}
+}
+
+.echo-ui-nc .nc-queue {
+	display: flex;
+	justify-content: space-between;
+	padding: 8px 12px;
+	font-size: 12px;
+	color: var(--nc-mute);
+	background: var(--nc-panel);
+	border-top: 1px solid var(--nc-line);
+}
+
+.echo-ui-nc .nc-tabs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 12px;
+}
+
+.echo-ui-nc pre {
+	margin: 12px 0 0;
+	padding: 12px 14px;
+	overflow-x: auto;
+	font: 12.5px/1.6 ui-monospace, Menlo, Consolas, monospace;
+	color: #d8e6ee;
+	background: #0f1a22;
+	border-radius: 8px;
+}
+
+/* Save bar: fixed to the viewport, offset past the WP admin menu. */
+.echo-ui-nc .nc-savebar {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	left: 160px;
+	z-index: 50;
+	padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+	background: var(--nc-panel);
+	border-top: 1px solid var(--nc-line);
+}
+
+body.folded .echo-ui-nc .nc-savebar {
+	left: 36px;
+}
+
+.echo-ui-nc .nc-savebar > div {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	align-items: center;
+	justify-content: space-between;
+	max-width: 1180px;
+	margin: 0 auto;
+}
+
+.echo-ui-nc .nc-status {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	color: var(--nc-mute);
+}
+
+.echo-ui-nc .nc-status i {
+	width: 8px;
+	height: 8px;
+	background: var(--nc-success);
+	border-radius: 50%;
+}
+
+.echo-ui-nc .nc-savebar.dirty .nc-status i {
+	background: var(--nc-warning);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.echo-ui-nc .nc-toast {
+		animation: none !important;
+	}
+}
+
+@media (max-width: 980px) {
+	.echo-ui-nc .nc-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.echo-ui-nc .nc-stagecol {
+		position: static;
+		order: -1;
+	}
+
+	body.auto-fold .echo-ui-nc .nc-savebar {
+		left: 36px;
+	}
+}
+
+@media (max-width: 782px) {
+	.echo-ui-nc {
+		padding-right: 10px;
+	}
+
+	.echo-ui-nc .nc-savebar,
+	body.auto-fold .echo-ui-nc .nc-savebar {
+		left: 0;
+	}
+
+	.echo-ui-nc .nc-side {
+		align-items: flex-start;
+	}
+}
+
+@media (max-width: 600px) {
+	.echo-ui-nc .nc-two {
+		grid-template-columns: 1fr;
+	}
+
+	.echo-ui-nc .nc-dur {
+		grid-template-columns: 1fr;
+	}
+}

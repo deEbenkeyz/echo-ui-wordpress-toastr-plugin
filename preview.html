@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Echo UI Toasts Preview</title>
+	<link rel="stylesheet" href="assets/vendor/echo-ui/style.css">
+	<link rel="stylesheet" href="assets/css/echo-ui-wp.css">
+	<style>
+		:root {
+			color-scheme: light;
+			font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+			background: #f7f4ef;
+			color: #1f2933;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		body {
+			margin: 0;
+			min-height: 100vh;
+			display: grid;
+			place-items: center;
+			padding: 32px;
+			background:
+				linear-gradient(135deg, rgba(43, 108, 176, 0.12), transparent 34%),
+				linear-gradient(315deg, rgba(222, 107, 64, 0.14), transparent 38%),
+				#f7f4ef;
+		}
+
+		main {
+			width: min(880px, 100%);
+			display: grid;
+			gap: 24px;
+		}
+
+		.preview-panel {
+			background: rgba(255, 255, 255, 0.84);
+			border: 1px solid rgba(31, 41, 51, 0.12);
+			border-radius: 8px;
+			box-shadow: 0 24px 60px rgba(31, 41, 51, 0.12);
+			padding: clamp(22px, 5vw, 44px);
+			backdrop-filter: blur(12px);
+		}
+
+		h1 {
+			margin: 0;
+			font-size: clamp(2rem, 6vw, 4.25rem);
+			line-height: 0.95;
+			letter-spacing: 0;
+		}
+
+		p {
+			max-width: 62ch;
+			margin: 16px 0 0;
+			color: #4b5563;
+			font-size: 1rem;
+			line-height: 1.6;
+		}
+
+		.actions {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 12px;
+			margin-top: 28px;
+		}
+
+		button {
+			border: 0;
+			border-radius: 8px;
+			padding: 12px 16px;
+			color: #fff;
+			background: #263238;
+			font: inherit;
+			font-weight: 700;
+			cursor: pointer;
+			min-height: 44px;
+		}
+
+		button:hover {
+			filter: brightness(1.08);
+		}
+
+		.success {
+			background: #168a5b;
+		}
+
+		.error {
+			background: #bd3f32;
+		}
+
+		.warning {
+			background: #a66100;
+		}
+
+		.info {
+			background: #2767a5;
+		}
+
+		.loading {
+			background: #4f46a5;
+		}
+
+		.note {
+			font-size: 0.9rem;
+			color: #5f6b76;
+		}
+	</style>
+</head>
+<body>
+	<main>
+		<section class="preview-panel">
+			<h1>Echo UI Toasts</h1>
+			<p>This page previews the same bundled Echo UI browser assets loaded by the WordPress plugin. Click a toast type to see the wrapper behavior in action.</p>
+
+			<div class="actions" aria-label="Toast previews">
+				<button type="button" class="success" data-toast="success">Success</button>
+				<button type="button" class="error" data-toast="error">Error</button>
+				<button type="button" class="warning" data-toast="warning">Warning</button>
+				<button type="button" class="info" data-toast="info">Info</button>
+				<button type="button" class="loading" data-toast="loading">Loading</button>
+			</div>
+
+			<p class="note">The WordPress version exposes this as PHP via <code>echo_ui_toast()</code>, shortcode usage, and <code>window.echoUiToast()</code>.</p>
+		</section>
+	</main>
+
+	<script>
+		window.echoUiToastrSettings = {
+			options: {
+				position: 'top-right',
+				max: 4,
+				sound: { enabled: false }
+			},
+			context: 'frontend',
+			toasts: [{
+				type: 'success',
+				title: 'Echo UI is wired up',
+				description: 'This is the same UMD build vendored into the WordPress plugin.',
+				context: 'frontend'
+			}]
+		};
+	</script>
+	<script src="assets/vendor/echo-ui/echo.umd.js"></script>
+	<script src="assets/js/echo-ui-wp.js"></script>
+	<script>
+
+		document.querySelectorAll('[data-toast]').forEach(function (button) {
+			button.addEventListener('click', function () {
+				var type = button.getAttribute('data-toast');
+				window.echoUiToast(type, labels[type], {
+					description: descriptions[type],
+					context: 'frontend',
+					duration: type === 'loading' ? 0 : undefined
+				});
+			});
+		});
+
+		var labels = {
+			success: 'Post saved',
+			error: 'Upload failed',
+			warning: 'Check your settings',
+			info: 'New comment received',
+			loading: 'Syncing content'
+		};
+
+		var descriptions = {
+			success: 'Your WordPress action completed successfully.',
+			error: 'The server returned an error. Try again in a moment.',
+			warning: 'One option needs attention before publishing.',
+			info: 'A visitor left feedback on your latest post.',
+			loading: 'This toast stays open until dismissed.'
+		};
+	</script>
+</body>
+</html>
