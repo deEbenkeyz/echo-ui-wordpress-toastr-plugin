@@ -61,7 +61,7 @@ AJAX and REST JSON responses may include a toast payload. Frontend responses mus
 
 ## Configuration
 
-Go to **Echo UI** in the WP Admin menu, or **Settings > Echo UI Toasts**, to open the Notification Center. Changes are previewed live in the page before you save.
+Go to **Echo UI** in the WP Admin menu (or click **Settings** under the plugin on the Plugins screen) to open the Notification Center. Changes are previewed live in the page before you save.
 
 The settings page controls:
 

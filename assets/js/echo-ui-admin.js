@@ -22,6 +22,7 @@
 	var vis = [];
 	var queue = [];
 	var audio;
+	var submitting = false;
 
 	function $(q) {
 		return root.querySelector(q);
@@ -148,11 +149,15 @@
 		document.body.classList.remove('echo-ui-theme-auto', 'echo-ui-theme-dark', 'echo-ui-theme-light');
 		document.body.classList.add('echo-ui-theme-' + s.settings_theme);
 
-		var dirty = JSON.stringify(s) !== JSON.stringify(saved);
+		var dirty = isDirty();
 		$('#nc-savebar').classList.toggle('dirty', dirty);
 		$('#nc-save').disabled = !dirty;
 		$('#nc-stxt').textContent = dirty ? i18n.unsaved : i18n.allSaved;
 		renderQueue();
+	}
+
+	function isDirty() {
+		return JSON.stringify(s) !== JSON.stringify(saved);
 	}
 
 	function renderQueue() {
@@ -413,7 +418,18 @@
 		}
 
 		$$('input[type="number"][data-k]').forEach(clampInput);
+		submitting = true;
 		render();
+	});
+
+	// Browsers show their own generic "Leave site?" prompt; custom text is ignored.
+	window.addEventListener('beforeunload', function (event) {
+		if (submitting || !isDirty()) {
+			return;
+		}
+
+		event.preventDefault();
+		event.returnValue = '';
 	});
 
 	render();

@@ -21,6 +21,7 @@ class Echo_UI_Toastr_Plugin {
 	const STYLE_FONT    = 'echo-ui-admin-font';
 	const SCRIPT_ADMIN  = 'echo-ui-toasts-admin';
 	const OPTION_NAME   = 'echo_ui_toasts_options';
+	const SETTINGS_SLUG = 'echo-ui-toasts-dashboard';
 
 	/**
 	 * Singleton instance.
@@ -88,6 +89,8 @@ class Echo_UI_Toastr_Plugin {
 		add_action( 'admin_menu', array( $this, 'add_settings_page' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( ECHO_UI_TOASTS_FILE ), array( $this, 'plugin_action_links' ) );
+		add_action( 'admin_page_access_denied', array( $this, 'redirect_legacy_settings_page' ) );
 		add_action( 'admin_notices', array( $this, 'start_admin_notice_capture' ), -9999 );
 		add_action( 'admin_notices', array( $this, 'finish_admin_notice_capture' ), 9999 );
 		add_action( 'all_admin_notices', array( $this, 'start_admin_notice_capture' ), -9999 );
@@ -349,22 +352,54 @@ class Echo_UI_Toastr_Plugin {
 	}
 
 	/**
+	 * URL of the Notification Center settings page.
+	 *
+	 * @return string
+	 */
+	public static function settings_url() {
+		return admin_url( 'admin.php?page=' . self::SETTINGS_SLUG );
+	}
+
+	/**
+	 * Add a Settings link to the plugin's row on the Plugins screen.
+	 *
+	 * @param string[] $links Action links.
+	 * @return string[]
+	 */
+	public function plugin_action_links( $links ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			array_unshift( $links, sprintf( '<a href="%1$s">%2$s</a>', esc_url( self::settings_url() ), esc_html__( 'Settings', 'echo-ui-toasts' ) ) );
+		}
+
+		return $links;
+	}
+
+	/**
+	 * Send the retired Settings > Echo UI Toasts URL to the Notification Center.
+	 *
+	 * WordPress denies access to unregistered pages before admin_init, so this runs on
+	 * admin_page_access_denied.
+	 */
+	public function redirect_legacy_settings_page() {
+		global $pagenow;
+
+		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		if ( 'options-general.php' === $pagenow && 'echo-ui-toasts' === $page && current_user_can( 'manage_options' ) ) {
+			wp_safe_redirect( self::settings_url() );
+			exit;
+		}
+	}
+
+	/**
 	 * Add the settings page.
 	 */
 	public function add_settings_page() {
-		add_options_page(
-			__( 'Echo UI Toasts', 'echo-ui-toasts' ),
-			__( 'Echo UI Toasts', 'echo-ui-toasts' ),
-			'manage_options',
-			'echo-ui-toasts',
-			array( $this, 'render_settings_page' )
-		);
-
 		add_menu_page(
 			__( 'Echo UI Toasts', 'echo-ui-toasts' ),
 			__( 'Echo UI', 'echo-ui-toasts' ),
 			'manage_options',
-			'echo-ui-toasts-dashboard',
+			self::SETTINGS_SLUG,
 			array( $this, 'render_settings_page' ),
 			'dashicons-megaphone',
 			80
@@ -460,13 +495,11 @@ class Echo_UI_Toastr_Plugin {
 	 * the live preview, summary pills, and save bar in sync with those fields.
 	 */
 	public function render_settings_page() {
-		global $pagenow;
-
 		$options = $this->get_options();
 		$types   = $this->toast_types();
 
-		// The Settings API only prints "Settings saved." on options-general.php pages.
-		if ( $this->settings_just_saved() && 'options-general.php' !== $pagenow ) {
+		// The Settings API only prints "Settings saved." on options-general.php pages, not top-level ones.
+		if ( $this->settings_just_saved() ) {
 			$this->add_toast(
 				'success',
 				__( 'Settings saved', 'echo-ui-toasts' ),
@@ -1128,7 +1161,7 @@ class Echo_UI_Toastr_Plugin {
 
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-		return in_array( $page, array( 'echo-ui-toasts', 'echo-ui-toasts-dashboard' ), true );
+		return in_array( $page, array( self::SETTINGS_SLUG ), true );
 	}
 
 	/**

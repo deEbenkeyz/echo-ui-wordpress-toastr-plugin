@@ -14,7 +14,7 @@ WordPress wrapper for Echo UI toast notifications.
 
 Echo UI Toasts bundles Echo UI and exposes it to WordPress through frontend assets, a PHP helper, and a shortcode.
 
-It can run in WP Admin and on the public frontend. Public frontend notifications are enabled by default and can be disabled in Echo UI or Settings > Echo UI Toasts.
+It can run in WP Admin and on the public frontend. Public frontend notifications are enabled by default and can be disabled in the Echo UI admin menu.
 
 == Usage ==
 
