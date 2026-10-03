@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: composer:v2
+
+      - name: Syntax check
+        run: find . -name '*.php' -not -path './vendor/*' -print0 | xargs -0 -n1 php -l > /dev/null
+
+      - name: Install dev dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Unit tests
+        run: vendor/bin/phpunit
+
+  standards:
+    name: Coding standards, JS, translations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dev dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: PHPCS (WordPress Coding Standards)
+        run: vendor/bin/phpcs
+
+      - name: JavaScript syntax
+        run: for f in assets/js/*.js; do node --check "$f"; done
+
+      - name: POT file is up to date
+        run: |
+          vendor/bin/wp i18n make-pot . /tmp/fresh.pot --slug=echo-ui-toasts --domain=echo-ui-toasts --exclude=vendor,tests,node_modules,admin-preview.html,preview.html
+          if ! diff <(grep -E '^msg(id|id_plural|ctxt) ' languages/echo-ui-toasts.pot | sort) <(grep -E '^msg(id|id_plural|ctxt) ' /tmp/fresh.pot | sort); then
+            echo "::error::languages/echo-ui-toasts.pot is out of date. Run: composer make-pot"
+            exit 1
+          fi

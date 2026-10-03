@@ -2,3 +2,17 @@
 *.png binary
 *.jpg binary
 *.woff2 binary
+
+# Left out of the release zip (git archive / bin/build-zip.sh).
+/.github export-ignore
+/bin export-ignore
+/tests export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/composer.json export-ignore
+/composer.lock export-ignore
+/phpcs.xml.dist export-ignore
+/phpunit.xml.dist export-ignore
+/README.md export-ignore
+/admin-preview.html export-ignore
+/preview.html export-ignore

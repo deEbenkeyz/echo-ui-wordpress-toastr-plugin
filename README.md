@@ -113,3 +113,17 @@ This plugin vendors Echo UI `0.1.0` browser assets:
 - `assets/vendor/echo-ui/style.css`
 
 The settings page font, Figtree (SIL Open Font License 1.1), is bundled in `assets/vendor/figtree/`.
+
+## Development
+
+Requires PHP 7.4+ and Composer.
+
+```bash
+composer install       # dev tools: PHPUnit, Brain Monkey, WPCS, wp-cli i18n
+composer test          # unit tests (no WordPress or database needed)
+composer lint          # WordPress Coding Standards (composer lint:fix to auto-fix)
+composer make-pot      # regenerate languages/echo-ui-toasts.pot
+bin/build-zip.sh       # installable zip in dist/, dev files excluded
+```
+
+GitHub Actions runs the tests on PHP 7.4–8.4, PHPCS, a JavaScript syntax check, and a POT freshness check on every push. Pushing a tag such as `v0.2.0` (matching the plugin version) publishes a GitHub release with the zip attached.

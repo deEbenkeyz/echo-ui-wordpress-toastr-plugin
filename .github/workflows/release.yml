@@ -1,0 +1,37 @@
+name: Release
+
+# Push a tag like v0.2.0 (matching the plugin's Version header) to publish a
+# GitHub release with an installable zip attached.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check tag matches plugin version
+        run: |
+          header="$(sed -n 's/^ \* Version: *//p' echo-ui-wordpress-toastr-plugin.php | tr -d '\r')"
+          constant="$(sed -n "s/.*'ECHO_UI_TOASTS_VERSION', '\([^']*\)'.*/\1/p" echo-ui-wordpress-toastr-plugin.php)"
+          stable="$(sed -n 's/^Stable tag: *//p' readme.txt | tr -d '\r')"
+          tag="${GITHUB_REF_NAME#v}"
+          echo "tag=$tag header=$header constant=$constant stable=$stable"
+          if [ "$tag" != "$header" ] || [ "$tag" != "$constant" ] || [ "$tag" != "$stable" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match Version header, ECHO_UI_TOASTS_VERSION and Stable tag."
+            exit 1
+          fi
+
+      - name: Build zip
+        id: zip
+        run: echo "path=$(bin/build-zip.sh "$GITHUB_REF_NAME")" >> "$GITHUB_OUTPUT"
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "${{ steps.zip.outputs.path }}" --title "Echo UI Toasts $GITHUB_REF_NAME" --generate-notes

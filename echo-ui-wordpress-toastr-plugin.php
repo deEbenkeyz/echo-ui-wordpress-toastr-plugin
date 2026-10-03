@@ -3,7 +3,7 @@
  * Plugin Name: Echo UI Toasts
  * Plugin URI: https://github.com/deEbenkeyz/echo-ui
  * Description: WordPress wrapper for Echo UI toast notifications.
- * Version: 0.1.6
+ * Version: 0.2.0
  * Author: Onkyer Studio Labs
  * License: MIT
  * License URI: https://opensource.org/licenses/MIT
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'ECHO_UI_TOASTS_VERSION', '0.1.6' );
+define( 'ECHO_UI_TOASTS_VERSION', '0.2.0' );
 define( 'ECHO_UI_TOASTS_FILE', __FILE__ );
 define( 'ECHO_UI_TOASTS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ECHO_UI_TOASTS_URL', plugin_dir_url( __FILE__ ) );
