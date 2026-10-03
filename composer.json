@@ -1,0 +1,32 @@
+{
+	"name": "deebenkeyz/echo-ui-wordpress-toastr-plugin",
+	"description": "WordPress wrapper for Echo UI toast notifications.",
+	"type": "wordpress-plugin",
+	"license": "MIT",
+	"require": {
+		"php": ">=7.4"
+	},
+	"require-dev": {
+		"brain/monkey": "^2.6",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"phpunit/phpunit": "^9.6",
+		"wp-cli/i18n-command": "^2.6",
+		"wp-coding-standards/wpcs": "^3.1"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"platform": {
+			"php": "7.4"
+		},
+		"sort-packages": true
+	},
+	"scripts": {
+		"lint": "phpcs",
+		"lint:fix": "phpcbf",
+		"test": "phpunit",
+		"make-pot": "wp i18n make-pot . languages/echo-ui-toasts.pot --slug=echo-ui-toasts --domain=echo-ui-toasts --exclude=vendor,tests,node_modules,admin-preview.html,preview.html"
+	}
+}

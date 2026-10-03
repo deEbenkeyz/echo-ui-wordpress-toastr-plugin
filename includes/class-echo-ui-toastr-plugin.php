@@ -838,8 +838,11 @@ class Echo_UI_Toastr_Plugin {
 				'stack'      => __( 'Stack', 'echo-ui-toasts' ),
 				'positions'  => $this->positions(),
 				'staysOpen'  => __( 'Stays until dismissed', 'echo-ui-toasts' ),
+				/* translators: %s: duration in seconds, e.g. "4" or "1.5". */
 				'seconds'    => __( '%s s', 'echo-ui-toasts' ),
+				/* translators: %d: number of toasts on screen in the preview. */
 				'visible'    => __( '%d visible', 'echo-ui-toasts' ),
+				/* translators: 1: number of toasts on screen, 2: number of toasts waiting in the queue. */
 				'queued'     => __( '%1$d visible · %2$d queued', 'echo-ui-toasts' ),
 				'unsaved'    => __( 'You have unsaved changes', 'echo-ui-toasts' ),
 				'allSaved'   => __( 'All changes saved', 'echo-ui-toasts' ),

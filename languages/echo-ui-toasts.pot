@@ -1,0 +1,451 @@
+# Copyright (C) 2026 Onkyer Studio Labs
+# This file is distributed under the MIT.
+msgid ""
+msgstr ""
+"Project-Id-Version: Echo UI Toasts 0.1.6\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/echo-ui-toasts\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-10-03T11:51:23+02:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: echo-ui-toasts\n"
+
+#. Plugin Name of the plugin
+#: echo-ui-wordpress-toastr-plugin.php:3
+#: includes/class-echo-ui-toastr-plugin.php:400
+msgid "Echo UI Toasts"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: echo-ui-wordpress-toastr-plugin.php:4
+msgid "https://github.com/deEbenkeyz/echo-ui"
+msgstr ""
+
+#. Description of the plugin
+#: echo-ui-wordpress-toastr-plugin.php:5
+msgid "WordPress wrapper for Echo UI toast notifications."
+msgstr ""
+
+#. Author of the plugin
+#: echo-ui-wordpress-toastr-plugin.php:7
+msgid "Onkyer Studio Labs"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:372
+msgid "Settings"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:401
+msgid "Echo UI"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:520
+#: includes/class-echo-ui-toastr-plugin.php:853
+msgid "Settings saved"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:522
+#: includes/class-echo-ui-toastr-plugin.php:853
+msgid "Echo UI defaults are now live."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:534
+msgid "Onkyer Studio Labs · Echo UI"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:535
+msgid "Notification Center"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:536
+msgid "Choose where toasts appear, how long they stay, and what visitors can look back on. The preview updates as you change settings."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:548
+msgid "Where toasts show"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:549
+msgid "Turn notifications on or off for each side of your site."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:551
+msgid "WP admin dashboard"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:551
+msgid "Operational notices for editors and administrators."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:552
+msgid "Admin notices as toasts"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:552
+msgid "Also show WordPress status messages, like \"Settings saved\", as toasts. Promotional banners are left alone."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:553
+msgid "Public frontend"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:553
+msgid "Visitor-safe notices for visitors and logged-in users."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:556
+msgid "WooCommerce notices as toasts"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:556
+msgid "Show cart, checkout, and account messages as toasts instead of inline banners. Links like \"View cart\" become a toast button."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:565
+msgid "Position and motion"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:566
+msgid "Defaults for every toast. Individual toasts can override them."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:567
+msgid "Screen position"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:577
+msgid "Enter animation"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:581
+msgid "Exit animation"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:585
+msgid "Animation speed"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:591
+#: includes/class-echo-ui-toastr-plugin.php:592
+msgid "Maximum visible toasts"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:593
+msgid "Extra toasts wait in a queue until there is room."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:598
+msgid "How long each type stays"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:599
+msgid "Set time in milliseconds. Enter 0 to keep a toast open until it is dismissed."
+msgstr ""
+
+#. translators: %s: toast type label.
+#: includes/class-echo-ui-toastr-plugin.php:607
+#, php-format
+msgid "%s duration"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:618
+msgid "Sound and history"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:619
+msgid "Add subtle audio feedback and let people reopen toasts they missed."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:620
+msgid "Play notification sounds"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:620
+msgid "A short, quiet tone when a toast appears."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:622
+msgid "Volume"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:625
+msgid "Test"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:627
+msgid "Range 0 to 0.2. Kept low on purpose."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:628
+msgid "Types that play a sound"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:631
+msgid "Toast history"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:631
+msgid "Let users reopen recent important toasts."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:634
+#: includes/class-echo-ui-toastr-plugin.php:635
+msgid "History limit"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:636
+msgid "Maximum stored items per session."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:638
+msgid "Types saved to history"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:644
+msgid "Developer reference"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:645
+msgid "AJAX and REST responses can include a toast object. Use the frontend context for visitor-facing messages."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:647
+#: includes/class-echo-ui-toastr-plugin.php:835
+msgid "Frontend"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:648
+#: includes/class-echo-ui-toastr-plugin.php:834
+msgid "Admin"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:651
+#: includes/class-echo-ui-toastr-plugin.php:849
+msgid "Copy snippet"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:657
+msgid "Live preview"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:659
+msgid "Test stack"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:660
+msgid "Play toast"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:673
+msgid "Preview uses your real timings"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:675
+msgid "Preview type"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:685
+#: includes/class-echo-ui-toastr-plugin.php:848
+msgid "All changes saved"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:687
+msgid "Reset to defaults"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:688
+msgid "Save Echo UI settings"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:704
+msgid "Auto"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:705
+msgid "Dark"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:706
+msgid "Light"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:709
+msgid "Settings page theme"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:795
+msgid "Decrease"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:797
+msgid "Increase"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:836
+msgid "On"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:837
+msgid "Off"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:838
+msgid "Stack"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:840
+msgid "Stays until dismissed"
+msgstr ""
+
+#. translators: %s: duration in seconds, e.g. "4" or "1.5".
+#: includes/class-echo-ui-toastr-plugin.php:842
+#, php-format
+msgid "%s s"
+msgstr ""
+
+#. translators: %d: number of toasts on screen in the preview.
+#: includes/class-echo-ui-toastr-plugin.php:844
+#, php-format
+msgid "%d visible"
+msgstr ""
+
+#. translators: 1: number of toasts on screen, 2: number of toasts waiting in the queue.
+#: includes/class-echo-ui-toastr-plugin.php:846
+#, php-format
+msgid "%1$d visible · %2$d queued"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:847
+msgid "You have unsaved changes"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:850
+msgid "Copied"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:851
+msgid "Copy failed"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:852
+msgid "Dismiss"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:855
+msgid "Saved"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:855
+msgid "Your changes are live."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:856
+msgid "Could not save"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:856
+msgid "Check the form and try again."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:857
+msgid "Low stock"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:857
+msgid "Only 3 items left."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:858
+msgid "Order status updated"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:858
+msgid "A concise message appears here."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:859
+msgid "Uploading files"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:859
+msgid "This stays until it finishes."
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:901
+msgid "Success"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:902
+msgid "Error"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:903
+msgid "Warning"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:904
+msgid "Info"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:905
+msgid "Loading"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:916
+msgid "Top left"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:917
+msgid "Top center"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:918
+msgid "Top right"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:919
+msgid "Bottom left"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:920
+msgid "Bottom center"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:921
+msgid "Bottom right"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:932
+#: includes/class-echo-ui-toastr-plugin.php:972
+msgid "Slide"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:933
+#: includes/class-echo-ui-toastr-plugin.php:971
+msgid "Fade"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:934
+#: includes/class-echo-ui-toastr-plugin.php:973
+msgid "Pop"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:935
+msgid "Drop"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:947
+msgid "Fast"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:952
+msgid "Normal"
+msgstr ""
+
+#: includes/class-echo-ui-toastr-plugin.php:957
+msgid "Relaxed"
+msgstr ""

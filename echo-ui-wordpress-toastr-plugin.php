@@ -8,6 +8,9 @@
  * License: MIT
  * License URI: https://opensource.org/licenses/MIT
  * Text Domain: echo-ui-toasts
+ * Domain Path: /languages
+ * Requires at least: 6.0
+ * Requires PHP: 7.4
  *
  * @package Echo_UI_Toasts
  */
@@ -26,6 +29,13 @@ require_once ECHO_UI_TOASTS_DIR . 'includes/class-echo-ui-toastr-plugin.php';
 register_activation_hook( __FILE__, array( 'Echo_UI_Toastr_Plugin', 'activate' ) );
 
 add_action( 'plugins_loaded', array( 'Echo_UI_Toastr_Plugin', 'instance' ) );
+
+add_action(
+	'init',
+	function () {
+		load_plugin_textdomain( 'echo-ui-toasts', false, dirname( plugin_basename( ECHO_UI_TOASTS_FILE ) ) . '/languages' );
+	}
+);
 
 if ( ! function_exists( 'echo_ui_toast' ) ) {
 	/**
