@@ -321,9 +321,10 @@ class Echo_UI_Toastr_Plugin {
 		$this->enqueue_assets();
 
 		$settings = array(
-			'options' => $this->get_echo_config(),
-			'toasts'  => $this->toasts,
-			'context' => is_admin() ? 'admin' : 'frontend',
+			'options'   => $this->get_echo_config(),
+			'toasts'    => $this->toasts,
+			'context'   => is_admin() ? 'admin' : 'frontend',
+			'wooBlocks' => ! is_admin() && $this->woocommerce_toasts_enabled(),
 		);
 
 		wp_add_inline_script(

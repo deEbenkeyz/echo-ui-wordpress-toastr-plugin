@@ -165,6 +165,73 @@
 		};
 	}
 
+	// WooCommerce Cart/Checkout blocks keep their notices in the core/notices data store
+	// (contexts like wc/cart, wc/checkout/payments) instead of PHP sessions.
+	function installWooBlocksBridge() {
+		var wpData = window.wp && window.wp.data;
+
+		if (!settings.wooBlocks || !wpData || !wpData.select('core/notices')) {
+			return;
+		}
+
+		var baseContexts = ['wc/cart', 'wc/checkout', 'wc/blocks'];
+		var statusMap = { error: 'error', success: 'success', warning: 'warning', info: 'info' };
+		var seen = {};
+		var busy = false;
+
+		function contexts() {
+			var list = baseContexts.slice();
+			var registry = wpData.select('wc/store/store-notices');
+			var registered = registry && registry.getRegisteredContainers ? registry.getRegisteredContainers() : [];
+
+			(registered || []).forEach(function (context) {
+				if (typeof context === 'string' && list.indexOf(context) === -1) {
+					list.push(context);
+				}
+			});
+
+			return list;
+		}
+
+		function plainText(content) {
+			var node = document.createElement('div');
+			node.innerHTML = String(content || '');
+			return (node.textContent || '').replace(/\s+/g, ' ').trim();
+		}
+
+		function sync() {
+			if (busy) {
+				return;
+			}
+
+			busy = true;
+
+			try {
+				var notices = wpData.select('core/notices');
+				var dispatch = wpData.dispatch('core/notices');
+
+				contexts().forEach(function (context) {
+					(notices.getNotices(context) || []).forEach(function (notice) {
+						var title = plainText(notice.content);
+
+						if (seen[notice.id] || !title) {
+							return;
+						}
+
+						seen[notice.id] = true;
+						show({ type: statusMap[notice.status] || 'info', title: title, context: 'frontend' }, false);
+						dispatch.removeNotice(notice.id, context);
+					});
+				});
+			} finally {
+				busy = false;
+			}
+		}
+
+		wpData.subscribe(sync);
+		sync();
+	}
+
 	function ensureWrapperId() {
 		var root = document.querySelector('[data-echo-root]');
 
@@ -183,6 +250,7 @@
 		ensureWrapperId();
 		installFetchInterceptor();
 		installXhrInterceptor();
+		installWooBlocksBridge();
 
 		// Delegated so shortcode buttons added later (popups, AJAX content, tabs) work too.
 		document.addEventListener('click', function (event) {

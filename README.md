@@ -90,7 +90,7 @@ add_filter( 'echo_ui_toastr_config', function ( $config ) {
 
 ## WooCommerce
 
-When WooCommerce is active, cart, checkout, and account notices are shown as toasts instead of inline banners. The first link in a notice (for example **View cart**) becomes a button on the toast. Turn this off under **Where toasts show**, or per request:
+When WooCommerce is active, cart, checkout, and account notices are shown as toasts instead of inline banners. This covers both the classic shortcode pages and the Cart and Checkout blocks. The first link in a notice (for example **View cart**) becomes a button on the toast. Turn this off under **Where toasts show**, or per request:
 
 ```php
 add_filter( 'echo_ui_toasts_woocommerce_notices', '__return_false' );
