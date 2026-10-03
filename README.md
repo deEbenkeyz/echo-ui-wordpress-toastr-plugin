@@ -4,7 +4,7 @@ WordPress wrapper for [Echo UI](https://github.com/deEbenkeyz/echo-ui), a framew
 
 ## Install
 
-Copy this folder into `wp-content/plugins/echo-ui-toasts`, then activate **Echo UI Toasts** in WordPress.
+Copy this folder into `wp-content/plugins/echo-ui-wordpress-toastr-plugin`, then activate **Echo UI Toasts** in WordPress.
 
 ## PHP usage
 

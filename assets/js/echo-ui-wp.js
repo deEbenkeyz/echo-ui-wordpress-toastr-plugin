@@ -184,14 +184,19 @@
 		installFetchInterceptor();
 		installXhrInterceptor();
 
-		document.querySelectorAll('[data-echo-ui-toast]').forEach(function (button) {
-			button.addEventListener('click', function () {
-				try {
-					show(JSON.parse(button.getAttribute('data-echo-ui-toast') || '{}'));
-				} catch (error) {
-					return null;
-				}
-			});
+		// Delegated so shortcode buttons added later (popups, AJAX content, tabs) work too.
+		document.addEventListener('click', function (event) {
+			var button = event.target.closest && event.target.closest('[data-echo-ui-toast]');
+
+			if (!button) {
+				return;
+			}
+
+			try {
+				show(JSON.parse(button.getAttribute('data-echo-ui-toast') || '{}'));
+			} catch (error) {
+				return;
+			}
 		});
 
 		document.dispatchEvent(new CustomEvent('echo-ui-toasts-ready', {

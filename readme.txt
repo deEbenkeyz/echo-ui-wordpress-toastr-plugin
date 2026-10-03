@@ -2,9 +2,9 @@
 Contributors: onkyer-studio-labs
 Tags: toast, notifications, toastr, alerts
 Requires at least: 6.0
-Tested up to: 6.8
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.1.5
+Stable tag: 0.1.6
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -55,3 +55,6 @@ Redesigned the settings page as the Notification Center: live toast preview, pos
 
 = 0.1.5 =
 WooCommerce notices now reliably become toasts (collected before WooCommerce prints them), with links such as "View cart" kept as a toast button. Toggle it under Where toasts show. The settings page font is now bundled instead of loaded from Google Fonts.
+
+= 0.1.6 =
+Admin notices are parsed reliably: only real WordPress status notices become toasts, promotional banners and hidden notices are left alone, and notice links become toast buttons. New "Admin notices as toasts" switch. Shortcode toast buttons now work when added to the page later (popups, AJAX content). Settings are removed when the plugin is deleted. Tested with WordPress 7.1.
