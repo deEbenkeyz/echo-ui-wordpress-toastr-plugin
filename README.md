@@ -126,4 +126,4 @@ composer make-pot      # regenerate languages/echo-ui-toasts.pot
 bin/build-zip.sh       # installable zip in dist/, dev files excluded
 ```
 
-GitHub Actions runs the tests on PHP 7.4–8.4, PHPCS, a JavaScript syntax check, and a POT freshness check on every push. Pushing a tag such as `v0.2.0` (matching the plugin version) publishes a GitHub release with the zip attached.
+GitHub Actions runs the tests on PHP 7.4–8.4, PHPCS, a JavaScript syntax check, and a POT freshness check on every push. Pushing a tag such as `v0.2.1` (matching the plugin version) publishes a GitHub release with the zip attached.

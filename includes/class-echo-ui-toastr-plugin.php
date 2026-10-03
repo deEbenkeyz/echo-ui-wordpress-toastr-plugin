@@ -771,7 +771,7 @@ class Echo_UI_Toastr_Plugin {
 	 */
 	private function render_select( $key, $choices, $options ) {
 		?>
-		<select id="<?php echo esc_attr( 'nc-' . $key ); ?>" name="<?php echo esc_attr( $this->field_name( $key ) ); ?>" data-k="<?php echo esc_attr( $key ); ?>">
+		<select id="<?php echo esc_attr( 'nc-' . $key ); ?>" class="echo-ui-admin__select" name="<?php echo esc_attr( $this->field_name( $key ) ); ?>" data-k="<?php echo esc_attr( $key ); ?>">
 			<?php foreach ( $choices as $value => $label ) : ?>
 				<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $options[ $key ] ); ?>><?php echo esc_html( $label ); ?></option>
 			<?php endforeach; ?>

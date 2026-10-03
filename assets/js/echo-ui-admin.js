@@ -168,6 +168,34 @@
 		$('#nc-qinfo').textContent = queue.length ? fmt(i18n.queued, vis.length, queue.length) : fmt(i18n.visible, vis.length);
 	}
 
+	function initEnhancedSelects() {
+		var jq = window.jQuery;
+
+		if (!jq || (!jq.fn.select2 && !jq.fn.selectWoo)) {
+			return;
+		}
+
+		$$('.echo-ui-admin__select').forEach(function (select) {
+			var $select = jq(select);
+			var plugin = jq.fn.select2 ? 'select2' : 'selectWoo';
+
+			if ($select.data('select2') || $select.data('selectWoo')) {
+				return;
+			}
+
+			$select[plugin]({
+				width: '100%',
+				minimumResultsForSearch: 8,
+				dropdownCssClass: 'echo-ui-nc-select-dropdown'
+			});
+
+			$select.on('change', function () {
+				s[select.dataset.k] = select.value;
+				render();
+			});
+		});
+	}
+
 	var savedOverride = null;
 
 	function MSG() {
@@ -444,6 +472,7 @@
 		event.returnValue = '';
 	});
 
+	initEnhancedSelects();
 	render();
 
 	setTimeout(function () {

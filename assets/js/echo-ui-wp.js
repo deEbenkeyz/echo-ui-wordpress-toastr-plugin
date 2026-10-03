@@ -70,7 +70,38 @@
 			return null;
 		}
 
-		return window.Echo[type](title, prepare(toast));
+		var id = window.Echo[type](title, prepare(toast));
+		enhanceToastDescription(id);
+
+		return id;
+	}
+
+	function enhanceToastDescription(id) {
+		if (!id) {
+			return;
+		}
+
+		window.setTimeout(function () {
+			var escapedId = window.CSS && window.CSS.escape ? window.CSS.escape(String(id)) : String(id).replace(/"/g, '\\"');
+			var toast = document.querySelector('[data-echo-toast][data-echo-id="' + escapedId + '"]');
+			var description = toast && toast.querySelector('.echo-toast__description');
+
+			if (!toast || !description || description.hidden || description.dataset.echoUiEnhanced === 'true') {
+				return;
+			}
+
+			description.dataset.echoUiEnhanced = 'true';
+			description.title = description.textContent || '';
+			toast.classList.add('echo-toast--has-description');
+			toast.setAttribute('tabindex', '0');
+			toast.setAttribute('aria-expanded', 'false');
+		}, 0);
+	}
+
+	function enhanceExistingDescriptions() {
+		document.querySelectorAll('[data-echo-toast][data-echo-id]').forEach(function (toast) {
+			enhanceToastDescription(toast.dataset.echoId);
+		});
 	}
 
 	window.echoUiToast = function (type, title, options) {
@@ -248,6 +279,7 @@
 		window.Echo.configure(settings.options || {});
 		window.Echo.boot((settings.toasts || []).map(prepare));
 		ensureWrapperId();
+		enhanceExistingDescriptions();
 		installFetchInterceptor();
 		installXhrInterceptor();
 		installWooBlocksBridge();
@@ -255,6 +287,14 @@
 		// Delegated so shortcode buttons added later (popups, AJAX content, tabs) work too.
 		document.addEventListener('click', function (event) {
 			var button = event.target.closest && event.target.closest('[data-echo-ui-toast]');
+
+			var toast = event.target.closest && event.target.closest('[data-echo-toast].echo-toast--has-description');
+
+			if (toast && !event.target.closest('button')) {
+				var expanded = toast.classList.toggle('echo-toast--expanded');
+				toast.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+				return;
+			}
 
 			if (!button) {
 				return;

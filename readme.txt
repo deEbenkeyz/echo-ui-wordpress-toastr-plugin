@@ -4,7 +4,7 @@ Tags: toast, notifications, toastr, alerts
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -61,3 +61,6 @@ Admin notices are parsed reliably: only real WordPress status notices become toa
 
 = 0.2.0 =
 WooCommerce Cart and Checkout block notices now show as toasts. New Animation speed and "Types that play a sound" settings. One Echo UI menu entry (the old Settings page redirects), a Settings link on the Plugins screen, and a warning before leaving the settings page with unsaved changes. Translation-ready with a bundled POT file. Notices with several paragraphs keep their spacing.
+
+= 0.2.1 =
+Long toast descriptions are clamped by default and reveal on hover, focus, or click. Settings dropdowns now progressively enhance with Select2/SelectWoo when that library is present.

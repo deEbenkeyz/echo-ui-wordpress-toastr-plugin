@@ -36,3 +36,34 @@
 	width: 0.9rem;
 	height: 0.9rem;
 }
+
+.echo-root .echo-toast--has-description,
+[data-echo-root] .echo-toast--has-description,
+#echo-ui-wrapper .echo-toast--has-description {
+	cursor: pointer;
+}
+
+.echo-root .echo-toast__description,
+[data-echo-root] .echo-toast__description,
+#echo-ui-wrapper .echo-toast__description {
+	display: -webkit-box;
+	max-height: 2.9em;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.echo-root .echo-toast--has-description:hover .echo-toast__description,
+.echo-root .echo-toast--has-description:focus-within .echo-toast__description,
+.echo-root .echo-toast--has-description.echo-toast--expanded .echo-toast__description,
+[data-echo-root] .echo-toast--has-description:hover .echo-toast__description,
+[data-echo-root] .echo-toast--has-description:focus-within .echo-toast__description,
+[data-echo-root] .echo-toast--has-description.echo-toast--expanded .echo-toast__description,
+#echo-ui-wrapper .echo-toast--has-description:hover .echo-toast__description,
+#echo-ui-wrapper .echo-toast--has-description:focus-within .echo-toast__description,
+#echo-ui-wrapper .echo-toast--has-description.echo-toast--expanded .echo-toast__description {
+	display: block;
+	max-height: 14rem;
+	overflow: auto;
+	-webkit-line-clamp: unset;
+}
