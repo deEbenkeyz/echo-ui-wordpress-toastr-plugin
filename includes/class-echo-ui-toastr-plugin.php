@@ -429,27 +429,27 @@ class Echo_UI_Toastr_Plugin {
 	 */
 	private function default_options() {
 		return array(
-			'enable_admin'      => 1,
-			'enable_frontend'   => 1,
-			'position'          => 'top-right',
-			'max'               => 4,
-			'enter'             => 'slide',
-			'exit'              => 'fade',
-			'motion_speed'      => 'normal',
-			'duration_success'  => 4000,
-			'duration_info'     => 4000,
-			'duration_warning'  => 6000,
-			'duration_error'    => 7000,
-			'duration_loading'  => 0,
-			'sound_enabled'     => 1,
-			'sound_volume'      => 0.09,
-			'sound_types'       => array( 'success', 'error', 'warning', 'info' ),
-			'history_enabled'   => 1,
-			'history_limit'     => 20,
-			'history_types'     => array( 'error', 'warning' ),
-			'settings_theme'    => 'dark',
-			'woo_notices'       => 1,
-			'admin_notices'     => 1,
+			'enable_admin'     => 1,
+			'enable_frontend'  => 1,
+			'position'         => 'top-right',
+			'max'              => 4,
+			'enter'            => 'slide',
+			'exit'             => 'fade',
+			'motion_speed'     => 'normal',
+			'duration_success' => 4000,
+			'duration_info'    => 4000,
+			'duration_warning' => 6000,
+			'duration_error'   => 7000,
+			'duration_loading' => 0,
+			'sound_enabled'    => 1,
+			'sound_volume'     => 0.09,
+			'sound_types'      => array( 'success', 'error', 'warning', 'info' ),
+			'history_enabled'  => 1,
+			'history_limit'    => 20,
+			'history_types'    => array( 'error', 'warning' ),
+			'settings_theme'   => 'dark',
+			'woo_notices'      => 1,
+			'admin_notices'    => 1,
 		);
 	}
 
@@ -998,7 +998,7 @@ class Echo_UI_Toastr_Plugin {
 			return;
 		}
 
-		$html = ob_get_clean();
+		$html                      = ob_get_clean();
 		$this->notice_buffer_level = null;
 
 		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -1332,7 +1332,7 @@ class Echo_UI_Toastr_Plugin {
 			}
 
 			$inner = '';
-			foreach ( $node->childNodes as $child ) {
+			foreach ( $node->childNodes as $child ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- PHP DOM API.
 				$inner .= $doc->saveHTML( $child );
 			}
 
@@ -1388,6 +1388,7 @@ class Echo_UI_Toastr_Plugin {
 	 * @return bool
 	 */
 	private function has_notice_ancestor( $node ) {
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- PHP DOM API.
 		for ( $parent = $node->parentNode; $parent instanceof DOMElement; $parent = $parent->parentNode ) {
 			if ( $this->is_notice( $this->class_list( $parent ) ) ) {
 				return true;
@@ -1406,8 +1407,8 @@ class Echo_UI_Toastr_Plugin {
 	 * @return bool
 	 */
 	private function is_promotional_notice( $xpath, $node, $text ) {
-		$has_class = function ( $class ) {
-			return "contains(concat(' ', normalize-space(@class), ' '), ' {$class} ')";
+		$has_class = function ( $class_name ) {
+			return "contains(concat(' ', normalize-space(@class), ' '), ' {$class_name} ')";
 		};
 		$query     = './/form | .//input | .//select | .//textarea | .//iframe | .//img | .//svg | .//video'
 			. ' | .//button[not(' . $has_class( 'notice-dismiss' ) . ')]'

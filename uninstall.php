@@ -12,7 +12,14 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 $echo_ui_toasts_option = 'echo_ui_toasts_options';
 
 if ( is_multisite() ) {
-	foreach ( get_sites( array( 'fields' => 'ids', 'number' => 0 ) ) as $echo_ui_toasts_site_id ) {
+	$echo_ui_toasts_sites = get_sites(
+		array(
+			'fields' => 'ids',
+			'number' => 0,
+		)
+	);
+
+	foreach ( $echo_ui_toasts_sites as $echo_ui_toasts_site_id ) {
 		switch_to_blog( $echo_ui_toasts_site_id );
 		delete_option( $echo_ui_toasts_option );
 		restore_current_blog();
