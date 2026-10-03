@@ -11,8 +11,7 @@
 	var i18n = data.i18n;
 	var TYPES = data.types;
 	var ICONS = { success: '✓', error: '!', warning: '▲', info: 'i', loading: '◌' };
-	var ENTER_MS = 240;
-	var EXIT_MS = 180;
+	var LISTS = ['history_types', 'sound_types'];
 	var form = root.querySelector('form');
 	var optionName = 'echo_ui_toasts_options';
 	var saved = normalize(data.saved);
@@ -39,8 +38,10 @@
 	// Keep history types in canonical order so dirty checks are order-independent.
 	function normalize(state) {
 		var next = clone(state);
-		next.history_types = TYPES.filter(function (type) {
-			return (next.history_types || []).indexOf(type) !== -1;
+		LISTS.forEach(function (key) {
+			next[key] = TYPES.filter(function (type) {
+				return (next[key] || []).indexOf(type) !== -1;
+			});
 		});
 		return next;
 	}
@@ -97,8 +98,8 @@
 		$$('#nc-pos button').forEach(function (button) {
 			button.setAttribute('aria-pressed', String(button.dataset.p === s.position));
 		});
-		$$('[data-ht]').forEach(function (button) {
-			button.setAttribute('aria-pressed', String(s.history_types.indexOf(button.dataset.ht) !== -1));
+		$$('[data-list]').forEach(function (button) {
+			button.setAttribute('aria-pressed', String(s[button.dataset.list].indexOf(button.dataset.type) !== -1));
 		});
 		$$('[data-pt]').forEach(function (button) {
 			button.setAttribute('aria-pressed', String(button.dataset.pt === ptype));
@@ -136,14 +137,17 @@
 		}, null, 2);
 
 		// Chips are not form controls, so mirror them into hidden inputs for options.php.
-		var holder = $('#nc-htypes-inputs');
-		holder.textContent = '';
-		s.history_types.forEach(function (type) {
-			var input = document.createElement('input');
-			input.type = 'hidden';
-			input.name = optionName + '[history_types][]';
-			input.value = type;
-			holder.appendChild(input);
+		$$('[data-list-inputs]').forEach(function (holder) {
+			var key = holder.dataset.listInputs;
+
+			holder.textContent = '';
+			s[key].forEach(function (type) {
+				var input = document.createElement('input');
+				input.type = 'hidden';
+				input.name = optionName + '[' + key + '][]';
+				input.value = type;
+				holder.appendChild(input);
+			});
 		});
 
 		document.body.classList.remove('echo-ui-theme-auto', 'echo-ui-theme-dark', 'echo-ui-theme-light');
@@ -177,6 +181,10 @@
 	}
 
 	// Preview toasts.
+	function speed() {
+		return data.speeds[s.motion_speed] || data.speeds.normal;
+	}
+
 	function slideOffset() {
 		if (/left$/.test(s.position)) {
 			return '-24px';
@@ -209,7 +217,7 @@
 
 		toast.style.setProperty('--c', 'var(--nc-' + type + ')');
 		toast.style.setProperty('--sx', slideOffset());
-		toast.style.animation = 'nc-in-' + s.enter + ' ' + ENTER_MS + 'ms ease both';
+		toast.style.animation = 'nc-in-' + s.enter + ' ' + speed().enter + 'ms ease both';
 		body.appendChild(el('div', 'nc-tt', message[0]));
 		body.appendChild(el('div', 'nc-tb', message[1]));
 		close.type = 'button';
@@ -231,7 +239,9 @@
 			vis = vis.filter(function (other) {
 				return other !== item;
 			});
-			toast.style.animation = 'nc-out-' + s.exit + ' ' + EXIT_MS + 'ms ease forwards';
+			var exitMs = speed().exit;
+
+			toast.style.animation = 'nc-out-' + s.exit + ' ' + exitMs + 'ms ease forwards';
 			setTimeout(function () {
 				toast.remove();
 
@@ -240,7 +250,7 @@
 				}
 
 				renderQueue();
-			}, EXIT_MS);
+			}, exitMs);
 			renderQueue();
 		}
 
@@ -251,7 +261,7 @@
 			item.timer = setTimeout(kill, duration);
 		}
 
-		if (s.sound_enabled && +s.sound_volume > 0) {
+		if (s.sound_enabled && +s.sound_volume > 0 && s.sound_types.indexOf(type) !== -1) {
 			beep(type);
 		}
 
@@ -335,17 +345,19 @@
 			return;
 		}
 
-		if (button.dataset.ht) {
-			var types = s.history_types.slice();
-			var index = types.indexOf(button.dataset.ht);
+		if (button.dataset.list) {
+			var list = button.dataset.list;
+			var types = s[list].slice();
+			var index = types.indexOf(button.dataset.type);
 
 			if (index === -1) {
-				types.push(button.dataset.ht);
+				types.push(button.dataset.type);
 			} else {
 				types.splice(index, 1);
 			}
 
-			s = normalize(Object.assign({}, s, { history_types: types }));
+			s[list] = types;
+			s = normalize(s);
 			render();
 		}
 

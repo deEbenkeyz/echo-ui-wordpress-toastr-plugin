@@ -434,6 +434,7 @@ class Echo_UI_Toastr_Plugin {
 			'max'               => 4,
 			'enter'             => 'slide',
 			'exit'              => 'fade',
+			'motion_speed'      => 'normal',
 			'duration_success'  => 4000,
 			'duration_info'     => 4000,
 			'duration_warning'  => 6000,
@@ -441,6 +442,7 @@ class Echo_UI_Toastr_Plugin {
 			'duration_loading'  => 0,
 			'sound_enabled'     => 1,
 			'sound_volume'      => 0.09,
+			'sound_types'       => array( 'success', 'error', 'warning', 'info' ),
 			'history_enabled'   => 1,
 			'history_limit'     => 20,
 			'history_types'     => array( 'error', 'warning' ),
@@ -457,21 +459,20 @@ class Echo_UI_Toastr_Plugin {
 	 * @return array<string,int>
 	 */
 	public function sanitize_options( $options ) {
-		$options = is_array( $options ) ? $options : array();
+		$options  = is_array( $options ) ? $options : array();
 		$defaults = $this->default_options();
-		$positions = array( 'top-right', 'top-left', 'top-center', 'bottom-right', 'bottom-left', 'bottom-center' );
-		$transitions = array( 'slide', 'fade', 'pop', 'drop' );
-		$settings_themes = array( 'auto', 'dark', 'light' );
-		$history_types = isset( $options['history_types'] ) && is_array( $options['history_types'] ) ? $options['history_types'] : array();
-		$history_types = array_values( array_intersect( array_map( 'sanitize_key', $history_types ), array( 'success', 'error', 'warning', 'info', 'loading' ) ) );
+		$pick     = function ( $key, $allowed ) use ( $options, $defaults ) {
+			return in_array( $options[ $key ] ?? '', $allowed, true ) ? $options[ $key ] : $defaults[ $key ];
+		};
 
 		return array(
 			'enable_admin'     => empty( $options['enable_admin'] ) ? 0 : 1,
 			'enable_frontend'  => empty( $options['enable_frontend'] ) ? 0 : 1,
-			'position'         => in_array( $options['position'] ?? '', $positions, true ) ? $options['position'] : $defaults['position'],
+			'position'         => $pick( 'position', array_keys( $this->positions() ) ),
 			'max'              => min( 10, max( 1, absint( $options['max'] ?? $defaults['max'] ) ) ),
-			'enter'            => in_array( $options['enter'] ?? '', $transitions, true ) ? $options['enter'] : $defaults['enter'],
-			'exit'             => in_array( $options['exit'] ?? '', $transitions, true ) ? $options['exit'] : $defaults['exit'],
+			'enter'            => $pick( 'enter', array_keys( $this->enter_animations() ) ),
+			'exit'             => $pick( 'exit', array_keys( $this->exit_animations() ) ),
+			'motion_speed'     => $pick( 'motion_speed', array_keys( $this->motion_speeds() ) ),
 			'duration_success' => min( 60000, max( 0, absint( $options['duration_success'] ?? $defaults['duration_success'] ) ) ),
 			'duration_info'    => min( 60000, max( 0, absint( $options['duration_info'] ?? $defaults['duration_info'] ) ) ),
 			'duration_warning' => min( 60000, max( 0, absint( $options['duration_warning'] ?? $defaults['duration_warning'] ) ) ),
@@ -479,13 +480,26 @@ class Echo_UI_Toastr_Plugin {
 			'duration_loading' => min( 60000, max( 0, absint( $options['duration_loading'] ?? $defaults['duration_loading'] ) ) ),
 			'sound_enabled'    => empty( $options['sound_enabled'] ) ? 0 : 1,
 			'sound_volume'     => min( 0.2, max( 0, (float) ( $options['sound_volume'] ?? $defaults['sound_volume'] ) ) ),
+			'sound_types'      => $this->sanitize_types( $options['sound_types'] ?? array() ),
 			'history_enabled'  => empty( $options['history_enabled'] ) ? 0 : 1,
 			'history_limit'    => min( 100, max( 1, absint( $options['history_limit'] ?? $defaults['history_limit'] ) ) ),
-			'history_types'    => $history_types,
-			'settings_theme'   => in_array( $options['settings_theme'] ?? '', $settings_themes, true ) ? $options['settings_theme'] : $defaults['settings_theme'],
+			'history_types'    => $this->sanitize_types( $options['history_types'] ?? array() ),
+			'settings_theme'   => $pick( 'settings_theme', array( 'auto', 'dark', 'light' ) ),
 			'woo_notices'      => empty( $options['woo_notices'] ) ? 0 : 1,
 			'admin_notices'    => empty( $options['admin_notices'] ) ? 0 : 1,
 		);
+	}
+
+	/**
+	 * Keep only known toast types, in canonical order. An empty list is allowed.
+	 *
+	 * @param mixed $types Raw list.
+	 * @return string[]
+	 */
+	private function sanitize_types( $types ) {
+		$types = is_array( $types ) ? array_map( 'sanitize_key', $types ) : array();
+
+		return array_values( array_intersect( array_keys( $this->toast_types() ), $types ) );
 	}
 
 	/**
@@ -566,6 +580,10 @@ class Echo_UI_Toastr_Plugin {
 									<label class="nc-lab" for="nc-exit"><?php esc_html_e( 'Exit animation', 'echo-ui-toasts' ); ?></label>
 									<?php $this->render_select( 'exit', $this->exit_animations(), $options ); ?>
 								</div>
+								<div>
+									<label class="nc-lab" for="nc-motion_speed"><?php esc_html_e( 'Animation speed', 'echo-ui-toasts' ); ?></label>
+									<?php $this->render_select( 'motion_speed', wp_list_pluck( $this->motion_speeds(), 'label' ), $options ); ?>
+								</div>
 							</div>
 
 							<div style="margin-top:18px">
@@ -606,6 +624,8 @@ class Echo_UI_Toastr_Plugin {
 									<button class="nc-btn" id="nc-tsnd" type="button"><?php esc_html_e( 'Test', 'echo-ui-toasts' ); ?></button>
 								</div>
 								<div class="nc-hint"><?php esc_html_e( 'Range 0 to 0.2. Kept low on purpose.', 'echo-ui-toasts' ); ?></div>
+								<span class="nc-lab" style="margin-top:14px"><?php esc_html_e( 'Types that play a sound', 'echo-ui-toasts' ); ?></span>
+								<?php $this->render_type_chips( 'sound_types', $options ); ?>
 							</div>
 							<?php $this->render_switch_row( 'history_enabled', __( 'Toast history', 'echo-ui-toasts' ), __( 'Let users reopen recent important toasts.', 'echo-ui-toasts' ), $options ); ?>
 							<div id="nc-hwrap">
@@ -615,16 +635,7 @@ class Echo_UI_Toastr_Plugin {
 									<div class="nc-hint" style="margin-top:6px"><?php esc_html_e( 'Maximum stored items per session.', 'echo-ui-toasts' ); ?></div>
 								</div>
 								<span class="nc-lab"><?php esc_html_e( 'Types saved to history', 'echo-ui-toasts' ); ?></span>
-								<div class="nc-chips" id="nc-htypes">
-									<?php foreach ( $types as $type => $label ) : ?>
-										<button type="button" class="nc-chip" data-ht="<?php echo esc_attr( $type ); ?>" style="--c:var(--nc-<?php echo esc_attr( $type ); ?>)" aria-pressed="<?php echo in_array( $type, $options['history_types'], true ) ? 'true' : 'false'; ?>"><i></i><?php echo esc_html( $label ); ?></button>
-									<?php endforeach; ?>
-								</div>
-								<span id="nc-htypes-inputs">
-									<?php foreach ( $options['history_types'] as $type ) : ?>
-										<input type="hidden" name="<?php echo esc_attr( $this->field_name( 'history_types' ) ); ?>[]" value="<?php echo esc_attr( $type ); ?>">
-									<?php endforeach; ?>
-								</span>
+								<?php $this->render_type_chips( 'history_types', $options ); ?>
 							</div>
 						</section>
 
@@ -729,6 +740,28 @@ class Echo_UI_Toastr_Plugin {
 	}
 
 	/**
+	 * Render toggle chips for a list-of-types option, mirrored into hidden inputs for options.php.
+	 *
+	 * @param string              $key     Option key (history_types or sound_types).
+	 * @param array<string,mixed> $options Current options.
+	 */
+	private function render_type_chips( $key, $options ) {
+		$selected = (array) $options[ $key ];
+		?>
+		<div class="nc-chips">
+			<?php foreach ( $this->toast_types() as $type => $label ) : ?>
+				<button type="button" class="nc-chip" data-list="<?php echo esc_attr( $key ); ?>" data-type="<?php echo esc_attr( $type ); ?>" style="--c:var(--nc-<?php echo esc_attr( $type ); ?>)" aria-pressed="<?php echo in_array( $type, $selected, true ) ? 'true' : 'false'; ?>"><i></i><?php echo esc_html( $label ); ?></button>
+			<?php endforeach; ?>
+		</div>
+		<span data-list-inputs="<?php echo esc_attr( $key ); ?>">
+			<?php foreach ( $selected as $type ) : ?>
+				<input type="hidden" name="<?php echo esc_attr( $this->field_name( $key ) ); ?>[]" value="<?php echo esc_attr( $type ); ?>">
+			<?php endforeach; ?>
+		</span>
+		<?php
+	}
+
+	/**
 	 * Render a native select bound to an option.
 	 *
 	 * @param string               $key     Option key.
@@ -795,6 +828,7 @@ class Echo_UI_Toastr_Plugin {
 			'defaults'  => $this->admin_state( $this->default_options() ),
 			'justSaved' => $this->settings_just_saved(),
 			'types'     => array_keys( $this->toast_types() ),
+			'speeds'    => $this->motion_speeds(),
 			'i18n'      => array(
 				'admin'      => __( 'Admin', 'echo-ui-toasts' ),
 				'frontend'   => __( 'Frontend', 'echo-ui-toasts' ),
@@ -847,7 +881,8 @@ class Echo_UI_Toastr_Plugin {
 			}
 		}
 
-		$state['history_types'] = array_values( array_intersect( array_keys( $this->toast_types() ), (array) $state['history_types'] ) );
+		$state['history_types'] = $this->sanitize_types( $state['history_types'] );
+		$state['sound_types']   = $this->sanitize_types( $state['sound_types'] );
 
 		return $state;
 	}
@@ -894,6 +929,31 @@ class Echo_UI_Toastr_Plugin {
 			'fade'  => __( 'Fade', 'echo-ui-toasts' ),
 			'pop'   => __( 'Pop', 'echo-ui-toasts' ),
 			'drop'  => __( 'Drop', 'echo-ui-toasts' ),
+		);
+	}
+
+	/**
+	 * Animation speed presets, in milliseconds (Echo UI enterMs / exitMs).
+	 *
+	 * @return array<string,array{label:string,enter:int,exit:int}>
+	 */
+	private function motion_speeds() {
+		return array(
+			'fast'    => array(
+				'label' => __( 'Fast', 'echo-ui-toasts' ),
+				'enter' => 160,
+				'exit'  => 120,
+			),
+			'normal'  => array(
+				'label' => __( 'Normal', 'echo-ui-toasts' ),
+				'enter' => 240,
+				'exit'  => 180,
+			),
+			'relaxed' => array(
+				'label' => __( 'Relaxed', 'echo-ui-toasts' ),
+				'enter' => 380,
+				'exit'  => 280,
+			),
 		);
 	}
 
@@ -1056,6 +1116,8 @@ class Echo_UI_Toastr_Plugin {
 			'max'      => (int) $options['max'],
 			'enter'    => $options['enter'],
 			'exit'     => $options['exit'],
+			'enterMs'  => $this->motion_speeds()[ $options['motion_speed'] ]['enter'] ?? 240,
+			'exitMs'   => $this->motion_speeds()[ $options['motion_speed'] ]['exit'] ?? 180,
 			'duration' => array(
 				'success' => (int) $options['duration_success'],
 				'info'    => (int) $options['duration_info'],
@@ -1071,6 +1133,7 @@ class Echo_UI_Toastr_Plugin {
 			'sound'    => array(
 				'enabled' => (bool) $options['sound_enabled'],
 				'volume'  => (float) $options['sound_volume'],
+				'types'   => array_values( (array) $options['sound_types'] ),
 			),
 		);
 
