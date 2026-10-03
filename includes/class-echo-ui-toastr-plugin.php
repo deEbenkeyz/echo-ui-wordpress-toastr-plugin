@@ -96,6 +96,7 @@ class Echo_UI_Toastr_Plugin {
 		add_action( 'network_admin_notices', array( $this, 'finish_admin_notice_capture' ), 9999 );
 		add_action( 'user_admin_notices', array( $this, 'start_admin_notice_capture' ), -9999 );
 		add_action( 'user_admin_notices', array( $this, 'finish_admin_notice_capture' ), 9999 );
+		add_action( 'template_redirect', array( $this, 'queue_woocommerce_notices' ), 100 );
 		add_action( 'wp_footer', array( $this, 'queue_woocommerce_notices' ), 1 );
 		add_shortcode( 'echo_ui_toast', array( $this, 'shortcode' ) );
 	}
@@ -409,6 +410,7 @@ class Echo_UI_Toastr_Plugin {
 			'history_limit'     => 20,
 			'history_types'     => array( 'error', 'warning' ),
 			'settings_theme'    => 'dark',
+			'woo_notices'       => 1,
 		);
 	}
 
@@ -445,6 +447,7 @@ class Echo_UI_Toastr_Plugin {
 			'history_limit'    => min( 100, max( 1, absint( $options['history_limit'] ?? $defaults['history_limit'] ) ) ),
 			'history_types'    => $history_types,
 			'settings_theme'   => in_array( $options['settings_theme'] ?? '', $settings_themes, true ) ? $options['settings_theme'] : $defaults['settings_theme'],
+			'woo_notices'      => empty( $options['woo_notices'] ) ? 0 : 1,
 		);
 	}
 
@@ -497,6 +500,13 @@ class Echo_UI_Toastr_Plugin {
 							<?php
 							$this->render_switch_row( 'enable_admin', __( 'WP admin dashboard', 'echo-ui-toasts' ), __( 'Operational notices for editors and administrators.', 'echo-ui-toasts' ), $options );
 							$this->render_switch_row( 'enable_frontend', __( 'Public frontend', 'echo-ui-toasts' ), __( 'Visitor-safe notices for visitors and logged-in users.', 'echo-ui-toasts' ), $options );
+
+							if ( class_exists( 'WooCommerce' ) ) {
+								$this->render_switch_row( 'woo_notices', __( 'WooCommerce notices as toasts', 'echo-ui-toasts' ), __( 'Show cart, checkout, and account messages as toasts instead of inline banners. Links like "View cart" become a toast button.', 'echo-ui-toasts' ), $options );
+							} else {
+								// Keep the stored value when WooCommerce is inactive so saving does not switch it off.
+								printf( '<input type="hidden" name="%1$s" value="%2$d">', esc_attr( $this->field_name( 'woo_notices' ) ), (int) $options['woo_notices'] );
+							}
 							?>
 						</section>
 
@@ -790,7 +800,7 @@ class Echo_UI_Toastr_Plugin {
 		foreach ( $this->default_options() as $key => $default ) {
 			$value = $options[ $key ] ?? $default;
 
-			if ( in_array( $key, array( 'enable_admin', 'enable_frontend', 'sound_enabled', 'history_enabled' ), true ) ) {
+			if ( in_array( $key, array( 'enable_admin', 'enable_frontend', 'sound_enabled', 'history_enabled', 'woo_notices' ), true ) ) {
 				$state[ $key ] = ! empty( $value );
 			} elseif ( 'sound_volume' === $key ) {
 				$state[ $key ] = round( (float) $value, 2 );
@@ -896,10 +906,14 @@ class Echo_UI_Toastr_Plugin {
 	}
 
 	/**
-	 * Queue WooCommerce notices as frontend-safe toasts.
+	 * Convert pending WooCommerce notices into toasts and remove them from the page.
+	 *
+	 * Runs on template_redirect (after WooCommerce's form handlers queue notices, before
+	 * templates print them) and again on wp_footer for notices added while rendering.
+	 * WooCommerce clears notices once it prints them, so collecting them any later misses them.
 	 */
 	public function queue_woocommerce_notices() {
-		if ( is_admin() || ! $this->frontend_enabled() || ! function_exists( 'wc_get_notices' ) ) {
+		if ( is_admin() || wp_doing_ajax() || ! $this->woocommerce_toasts_enabled() || ! function_exists( 'wc_get_notices' ) ) {
 			return;
 		}
 
@@ -910,23 +924,60 @@ class Echo_UI_Toastr_Plugin {
 
 		foreach ( $notices as $type => $items ) {
 			foreach ( (array) $items as $item ) {
-				$message = is_array( $item ) && isset( $item['notice'] ) ? $item['notice'] : $item;
-				$message = trim( wp_strip_all_tags( (string) $message ) );
+				$html  = (string) ( is_array( $item ) && isset( $item['notice'] ) ? $item['notice'] : $item );
+				$toast = $this->parse_woocommerce_notice( $html );
 
-				if ( '' === $message ) {
+				if ( '' === $toast['title'] ) {
 					continue;
 				}
 
-				$this->add_toast(
-					$this->map_woocommerce_type( $type ),
-					$message,
-					array(
-						'context' => 'frontend',
-						'silent'  => true,
-					)
+				$options = array(
+					'context' => 'frontend',
+					'silent'  => true,
 				);
+
+				if ( $toast['action'] ) {
+					$options['action'] = $toast['action'];
+				}
+
+				$this->add_toast( $this->map_woocommerce_type( $type ), $toast['title'], $options );
 			}
 		}
+
+		wc_clear_notices();
+	}
+
+	/**
+	 * Split a WooCommerce notice into plain text and an optional link action.
+	 *
+	 * "<a href=".../cart/" class="button wc-forward">View cart</a> Hoodie has been added to your cart."
+	 * becomes title "Hoodie has been added to your cart." with a "View cart" action.
+	 *
+	 * @param string $html Notice HTML.
+	 * @return array{title:string,action:array<string,string>|null}
+	 */
+	private function parse_woocommerce_notice( $html ) {
+		$action = null;
+
+		if ( preg_match( '/<a\s[^>]*href=(["\'])(.*?)\1[^>]*>(.*?)<\/a>/is', $html, $link ) ) {
+			$url   = esc_url_raw( html_entity_decode( $link[2], ENT_QUOTES, get_bloginfo( 'charset' ) ) );
+			$label = trim( wp_strip_all_tags( $link[3] ) );
+
+			if ( $url && '' !== $label ) {
+				$action = array(
+					'label' => $label,
+					'url'   => $url,
+				);
+				$html   = str_replace( $link[0], ' ', $html );
+			}
+		}
+
+		$title = html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, get_bloginfo( 'charset' ) );
+
+		return array(
+			'title'  => trim( preg_replace( '/\s+/', ' ', $title ) ),
+			'action' => $action,
+		);
 	}
 
 	/**
@@ -1001,6 +1052,22 @@ class Echo_UI_Toastr_Plugin {
 	private function frontend_enabled() {
 		$options = $this->get_options();
 		return ! empty( $options['enable_frontend'] );
+	}
+
+	/**
+	 * Whether WooCommerce notices should be shown as toasts.
+	 *
+	 * @return bool
+	 */
+	private function woocommerce_toasts_enabled() {
+		$options = $this->get_options();
+
+		/**
+		 * Filters whether WooCommerce notices are converted into toasts.
+		 *
+		 * @param bool $enabled Whether the conversion runs on this request.
+		 */
+		return (bool) apply_filters( 'echo_ui_toasts_woocommerce_notices', $this->frontend_enabled() && ! empty( $options['woo_notices'] ) );
 	}
 
 	/**
@@ -1168,6 +1235,17 @@ class Echo_UI_Toastr_Plugin {
 
 		if ( isset( $options['silent'] ) ) {
 			$toast['silent'] = (bool) $options['silent'];
+		}
+
+		if ( ! empty( $options['action']['label'] ) && ! empty( $options['action']['url'] ) ) {
+			$url = esc_url_raw( (string) $options['action']['url'], array( 'http', 'https' ) );
+
+			if ( $url ) {
+				$toast['action'] = array(
+					'label' => sanitize_text_field( (string) $options['action']['label'] ),
+					'url'   => $url,
+				);
+			}
 		}
 
 		$toast['context'] = $this->resolve_context( isset( $options['context'] ) ? $options['context'] : 'auto' );

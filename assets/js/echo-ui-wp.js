@@ -33,6 +33,31 @@
 		return true;
 	}
 
+	// PHP cannot send callbacks, so `action: { label, url }` becomes an Echo action that navigates.
+	function prepare(toast) {
+		var action = toast && toast.action;
+
+		if (!action || typeof action.onClick === 'function') {
+			return toast;
+		}
+
+		var copy = Object.assign({}, toast);
+		var url = String(action.url || '');
+
+		if (action.label && (/^https?:\/\//i.test(url) || /^\/(?!\/)/.test(url))) {
+			copy.action = {
+				label: String(action.label),
+				onClick: function () {
+					window.location.href = url;
+				}
+			};
+		} else {
+			delete copy.action;
+		}
+
+		return copy;
+	}
+
 	function show(toast, isRemote) {
 		if (!window.Echo || !toast) {
 			return null;
@@ -45,7 +70,7 @@
 			return null;
 		}
 
-		return window.Echo[type](title, toast);
+		return window.Echo[type](title, prepare(toast));
 	}
 
 	window.echoUiToast = function (type, title, options) {
@@ -154,7 +179,7 @@
 		}
 
 		window.Echo.configure(settings.options || {});
-		window.Echo.boot(settings.toasts || []);
+		window.Echo.boot((settings.toasts || []).map(prepare));
 		ensureWrapperId();
 		installFetchInterceptor();
 		installXhrInterceptor();
