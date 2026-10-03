@@ -41,11 +41,23 @@
 
 	<rule ref="PHPCompatibilityWP"/>
 
-	<!-- Tests use PHPUnit naming. -->
+	<!-- Tests use PHPUnit naming, self-describing test names, and simple WP stand-ins. -->
 	<rule ref="WordPress.Files.FileName">
 		<exclude-pattern>/tests/*</exclude-pattern>
 	</rule>
 	<rule ref="WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.Missing">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FileComment.Missing">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions.strip_tags_strip_tags">
+		<exclude-pattern>/tests/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<exclude-pattern>/tests/*</exclude-pattern>
 	</rule>
 </ruleset>

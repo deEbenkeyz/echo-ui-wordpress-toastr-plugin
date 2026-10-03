@@ -1072,6 +1072,8 @@ class Echo_UI_Toastr_Plugin {
 			}
 		}
 
+		// Keep a space where block elements meet, so "<p>One</p><p>Two</p>" reads "One Two".
+		$html  = preg_replace( '#</(p|div|li|h[1-6]|ul|ol|blockquote)>|<br\s*/?>#i', '$0 ', $html );
 		$title = html_entity_decode( wp_strip_all_tags( $html ), ENT_QUOTES, get_bloginfo( 'charset' ) );
 
 		return array(
