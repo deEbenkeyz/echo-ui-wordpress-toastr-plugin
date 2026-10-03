@@ -411,6 +411,7 @@ class Echo_UI_Toastr_Plugin {
 			'history_types'     => array( 'error', 'warning' ),
 			'settings_theme'    => 'dark',
 			'woo_notices'       => 1,
+			'admin_notices'     => 1,
 		);
 	}
 
@@ -448,6 +449,7 @@ class Echo_UI_Toastr_Plugin {
 			'history_types'    => $history_types,
 			'settings_theme'   => in_array( $options['settings_theme'] ?? '', $settings_themes, true ) ? $options['settings_theme'] : $defaults['settings_theme'],
 			'woo_notices'      => empty( $options['woo_notices'] ) ? 0 : 1,
+			'admin_notices'    => empty( $options['admin_notices'] ) ? 0 : 1,
 		);
 	}
 
@@ -499,6 +501,7 @@ class Echo_UI_Toastr_Plugin {
 							<p class="nc-d"><?php esc_html_e( 'Turn notifications on or off for each side of your site.', 'echo-ui-toasts' ); ?></p>
 							<?php
 							$this->render_switch_row( 'enable_admin', __( 'WP admin dashboard', 'echo-ui-toasts' ), __( 'Operational notices for editors and administrators.', 'echo-ui-toasts' ), $options );
+							$this->render_switch_row( 'admin_notices', __( 'Admin notices as toasts', 'echo-ui-toasts' ), __( 'Also show WordPress status messages, like "Settings saved", as toasts. Promotional banners are left alone.', 'echo-ui-toasts' ), $options );
 							$this->render_switch_row( 'enable_frontend', __( 'Public frontend', 'echo-ui-toasts' ), __( 'Visitor-safe notices for visitors and logged-in users.', 'echo-ui-toasts' ), $options );
 
 							if ( class_exists( 'WooCommerce' ) ) {
@@ -800,7 +803,7 @@ class Echo_UI_Toastr_Plugin {
 		foreach ( $this->default_options() as $key => $default ) {
 			$value = $options[ $key ] ?? $default;
 
-			if ( in_array( $key, array( 'enable_admin', 'enable_frontend', 'sound_enabled', 'history_enabled', 'woo_notices' ), true ) ) {
+			if ( in_array( $key, array( 'enable_admin', 'enable_frontend', 'sound_enabled', 'history_enabled', 'woo_notices', 'admin_notices' ), true ) ) {
 				$state[ $key ] = ! empty( $value );
 			} elseif ( 'sound_volume' === $key ) {
 				$state[ $key ] = round( (float) $value, 2 );
@@ -878,7 +881,7 @@ class Echo_UI_Toastr_Plugin {
 	 * Start capturing admin notices so they can also be shown as toasts.
 	 */
 	public function start_admin_notice_capture() {
-		if ( ! $this->can_show_admin_toasts() ) {
+		if ( ! $this->can_show_admin_toasts() || ! $this->admin_notice_toasts_enabled() ) {
 			return;
 		}
 
@@ -925,7 +928,7 @@ class Echo_UI_Toastr_Plugin {
 		foreach ( $notices as $type => $items ) {
 			foreach ( (array) $items as $item ) {
 				$html  = (string) ( is_array( $item ) && isset( $item['notice'] ) ? $item['notice'] : $item );
-				$toast = $this->parse_woocommerce_notice( $html );
+				$toast = $this->parse_notice_html( $html );
 
 				if ( '' === $toast['title'] ) {
 					continue;
@@ -948,7 +951,7 @@ class Echo_UI_Toastr_Plugin {
 	}
 
 	/**
-	 * Split a WooCommerce notice into plain text and an optional link action.
+	 * Split a notice (WooCommerce or WP admin) into plain text and an optional link action.
 	 *
 	 * "<a href=".../cart/" class="button wc-forward">View cart</a> Hoodie has been added to your cart."
 	 * becomes title "Hoodie has been added to your cart." with a "View cart" action.
@@ -956,11 +959,11 @@ class Echo_UI_Toastr_Plugin {
 	 * @param string $html Notice HTML.
 	 * @return array{title:string,action:array<string,string>|null}
 	 */
-	private function parse_woocommerce_notice( $html ) {
+	private function parse_notice_html( $html ) {
 		$action = null;
 
 		if ( preg_match( '/<a\s[^>]*href=(["\'])(.*?)\1[^>]*>(.*?)<\/a>/is', $html, $link ) ) {
-			$url   = esc_url_raw( html_entity_decode( $link[2], ENT_QUOTES, get_bloginfo( 'charset' ) ) );
+			$url   = $this->absolute_url( html_entity_decode( $link[2], ENT_QUOTES, get_bloginfo( 'charset' ) ) );
 			$label = trim( wp_strip_all_tags( $link[3] ) );
 
 			if ( $url && '' !== $label ) {
@@ -978,6 +981,33 @@ class Echo_UI_Toastr_Plugin {
 			'title'  => trim( preg_replace( '/\s+/', ' ', $title ) ),
 			'action' => $action,
 		);
+	}
+
+	/**
+	 * Resolve a notice link to an absolute http(s) URL, or '' if it cannot be used.
+	 *
+	 * Admin notices often link relatively ("post.php?post=12&action=edit").
+	 *
+	 * @param string $url Raw href.
+	 * @return string
+	 */
+	private function absolute_url( $url ) {
+		$url = trim( $url );
+
+		if ( '' === $url || '#' === $url[0] ) {
+			return '';
+		}
+
+		if ( ! wp_parse_url( $url, PHP_URL_SCHEME ) && 0 !== strpos( $url, '//' ) ) {
+			if ( '/' === $url[0] ) {
+				$home = wp_parse_url( home_url() );
+				$url  = $home['scheme'] . '://' . $home['host'] . ( isset( $home['port'] ) ? ':' . $home['port'] : '' ) . $url;
+			} else {
+				$url = is_admin() ? admin_url( $url ) : home_url( '/' . $url );
+			}
+		}
+
+		return esc_url_raw( $url, array( 'http', 'https' ) );
 	}
 
 	/**
@@ -1052,6 +1082,22 @@ class Echo_UI_Toastr_Plugin {
 	private function frontend_enabled() {
 		$options = $this->get_options();
 		return ! empty( $options['enable_frontend'] );
+	}
+
+	/**
+	 * Whether WP admin notices should be repeated as toasts.
+	 *
+	 * @return bool
+	 */
+	private function admin_notice_toasts_enabled() {
+		$options = $this->get_options();
+
+		/**
+		 * Filters whether admin notices are repeated as toasts.
+		 *
+		 * @param bool $enabled Whether the conversion runs on this request.
+		 */
+		return (bool) apply_filters( 'echo_ui_toasts_admin_notices', $this->admin_enabled() && ! empty( $options['admin_notices'] ) );
 	}
 
 	/**
@@ -1131,48 +1177,161 @@ class Echo_UI_Toastr_Plugin {
 	/**
 	 * Parse captured admin notices into toasts.
 	 *
+	 * The original notice HTML is always printed; this only adds toasts.
+	 *
 	 * @param string $html Captured admin notice HTML.
 	 */
 	private function queue_admin_notices_from_html( $html ) {
-		if ( ! preg_match_all( '/<div[^>]+class=["\']([^"\']*(?:notice|updated|error)[^"\']*)["\'][^>]*>(.*?)<\/div>/is', $html, $matches, PREG_SET_ORDER ) ) {
+		if ( ! $this->admin_notice_toasts_enabled() ) {
 			return;
 		}
 
-		foreach ( $matches as $match ) {
-			$class = $match[1];
-			$text  = trim( html_entity_decode( wp_strip_all_tags( $match[2] ), ENT_QUOTES, get_bloginfo( 'charset' ) ) );
+		foreach ( $this->extract_admin_notices( $html ) as $notice ) {
+			$options = array(
+				'context' => 'admin',
+				'silent'  => true,
+			);
 
-			if ( '' === $text ) {
+			if ( $notice['action'] ) {
+				$options['action'] = $notice['action'];
+			}
+
+			$this->add_toast( $notice['type'], $notice['title'], $options );
+		}
+	}
+
+	/**
+	 * Find toast-worthy admin notices in captured HTML.
+	 *
+	 * Only outermost elements carrying a real notice class (notice, updated, error) count,
+	 * so nested markup inside a notice stays part of it. Hidden notices and promotional
+	 * banners (forms, images, buttons) are skipped and remain inline only.
+	 *
+	 * @param string $html Captured admin notice HTML.
+	 * @return array<int,array{type:string,title:string,action:array<string,string>|null}>
+	 */
+	private function extract_admin_notices( $html ) {
+		if ( '' === trim( $html ) || ! class_exists( 'DOMDocument' ) ) {
+			return array();
+		}
+
+		$doc      = new DOMDocument();
+		$previous = libxml_use_internal_errors( true );
+		$doc->loadHTML( '<?xml encoding="utf-8" ?><div>' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD );
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous );
+
+		$xpath   = new DOMXPath( $doc );
+		$notices = array();
+
+		foreach ( $xpath->query( '//div[@class]' ) as $node ) {
+			$classes = $this->class_list( $node );
+
+			if ( ! $this->is_notice( $classes ) || $this->has_notice_ancestor( $node ) ) {
 				continue;
 			}
 
-			$this->add_toast(
-				$this->map_admin_notice_type( $class ),
-				$text,
-				array(
-					'context' => 'admin',
-					'silent'  => true,
-				)
+			$inner = '';
+			foreach ( $node->childNodes as $child ) {
+				$inner .= $doc->saveHTML( $child );
+			}
+
+			$type    = $this->map_admin_notice_type( $classes );
+			$parsed  = $this->parse_notice_html( $inner );
+			$capture = '' !== $parsed['title'] && ! in_array( 'hidden', $classes, true ) && ! $this->is_promotional_notice( $xpath, $node, $parsed['title'] );
+
+			/**
+			 * Filters whether an admin notice is repeated as a toast.
+			 *
+			 * @param bool   $capture Whether to show the notice as a toast.
+			 * @param string $inner   Notice inner HTML.
+			 * @param string $type    Toast type the notice maps to.
+			 */
+			if ( ! apply_filters( 'echo_ui_toasts_capture_admin_notice', $capture, $inner, $type ) ) {
+				continue;
+			}
+
+			$notices[] = array(
+				'type'   => $type,
+				'title'  => $parsed['title'],
+				'action' => $parsed['action'],
 			);
 		}
+
+		return $notices;
+	}
+
+	/**
+	 * Class tokens of a DOM element.
+	 *
+	 * @param DOMElement $node Element.
+	 * @return string[]
+	 */
+	private function class_list( $node ) {
+		return preg_split( '/\s+/', trim( (string) $node->getAttribute( 'class' ) ), -1, PREG_SPLIT_NO_EMPTY );
+	}
+
+	/**
+	 * Whether class tokens mark a WordPress admin notice.
+	 *
+	 * @param string[] $classes Class tokens.
+	 * @return bool
+	 */
+	private function is_notice( $classes ) {
+		return (bool) array_intersect( array( 'notice', 'updated', 'error' ), $classes );
+	}
+
+	/**
+	 * Whether an element sits inside another admin notice.
+	 *
+	 * @param DOMNode $node Element.
+	 * @return bool
+	 */
+	private function has_notice_ancestor( $node ) {
+		for ( $parent = $node->parentNode; $parent instanceof DOMElement; $parent = $parent->parentNode ) {
+			if ( $this->is_notice( $this->class_list( $parent ) ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a notice looks like a banner or call to action rather than a status message.
+	 *
+	 * @param DOMXPath   $xpath XPath for the document.
+	 * @param DOMElement $node  Notice element.
+	 * @param string     $text  Notice plain text.
+	 * @return bool
+	 */
+	private function is_promotional_notice( $xpath, $node, $text ) {
+		$has_class = function ( $class ) {
+			return "contains(concat(' ', normalize-space(@class), ' '), ' {$class} ')";
+		};
+		$query     = './/form | .//input | .//select | .//textarea | .//iframe | .//img | .//svg | .//video'
+			. ' | .//button[not(' . $has_class( 'notice-dismiss' ) . ')]'
+			. ' | .//a[' . $has_class( 'button' ) . ']';
+
+		return $xpath->query( $query, $node )->length > 0 || strlen( $text ) > 280;
 	}
 
 	/**
 	 * Map admin notice classes to toast types.
 	 *
-	 * @param string $class Notice class string.
+	 * @param string[] $classes Notice class tokens.
 	 * @return string
 	 */
-	private function map_admin_notice_type( $class ) {
-		if ( false !== strpos( $class, 'notice-error' ) || false !== strpos( $class, ' error' ) ) {
+	private function map_admin_notice_type( $classes ) {
+		if ( array_intersect( array( 'notice-error', 'error' ), $classes ) ) {
 			return 'error';
 		}
 
-		if ( false !== strpos( $class, 'notice-warning' ) ) {
+		if ( in_array( 'notice-warning', $classes, true ) ) {
 			return 'warning';
 		}
 
-		if ( false !== strpos( $class, 'notice-success' ) || false !== strpos( $class, 'updated' ) ) {
+		if ( array_intersect( array( 'notice-success', 'updated' ), $classes ) ) {
 			return 'success';
 		}
 
